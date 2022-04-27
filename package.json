@@ -1,10 +1,16 @@
 {
-  "name": "stylelint-a11y",
   "version": "1.2.3",
+  "name": "@ivuorinen/stylelint-a11y",
   "description": "Plugin for stylelint with a11y rules",
   "main": "dist/index.js",
-  "repository": "https://github.com/YozhikM/stylelint-a11y.git",
+  "repository": "https://github.com/ivuorinen/stylelint-a11y.git",
   "author": "Stanislav <botev.st@gmail.com>",
+  "maintainers": [
+    {
+      "name": "Ismo Vuorinen",
+      "url": "https://github.com/ivuorinen"
+    }
+  ],
   "license": "MIT",
   "keywords": [
     "stylelint",
