@@ -28,8 +28,8 @@
     "prettify": "prettier '**/*.js' --write",
     "prepublish": "npm run build",
     "pretest": "npm run lint -- --fix",
-    "test": "jest",
-    "coverage": "jest --coverage"
+    "test": "npx jest",
+    "coverage": "npx jest --coverage"
   },
   "prettier": {
     "printWidth": 100,
