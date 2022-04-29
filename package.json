@@ -29,7 +29,8 @@
     "prepublish": "npm run build",
     "pretest": "npm run lint -- --fix",
     "test": "npx jest",
-    "coverage": "npx jest --coverage"
+    "coverage": "npx jest --coverage",
+    "release": "release-it"
   },
   "prettier": {
     "printWidth": 100,
@@ -81,7 +82,29 @@
     "jest-preset-stylelint": "^5.0.2",
     "lodash": "^4.17.21",
     "prettier": "^2.6.2",
+    "release-it": "^14.14.2",
     "rimraf": "^3.0.2",
     "stylelint": "^14.8.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "Release v${version}",
+      "requireBranch": "master"
+    },
+    "github": {
+      "release": true,
+      "web": true
+    },
+    "npm": {
+      "publish": true
+    }
+  },
+  "files": [
+    "recommended.js",
+    "dist/index.js",
+    "dist/rules"
+  ]
 }
