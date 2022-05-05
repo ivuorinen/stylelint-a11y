@@ -103,8 +103,9 @@
     }
   },
   "files": [
+    "README.md",
     "recommended.js",
     "dist/index.js",
-    "dist/rules"
+    "dist/rules/*/index.js"
   ]
 }
