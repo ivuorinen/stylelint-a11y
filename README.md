@@ -1,11 +1,11 @@
 # @ivuorinen/stylelint-a11y
 
-[![NPM version](http://img.shields.io/npm/v/@ivuorinen/stylelint-a11y.svg)](https://www.npmjs.org/package/@ivuorinen/stylelint-a11y) [![npm](https://img.shields.io/npm/dt/@ivuorinen/stylelint-a11y.svg)](http://www.npmtrends.com/@ivuorinen/stylelint-a11y) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github) [![Build Status](https://travis-ci.org/ivuorinen/stylelint-a11y.svg?branch=master)](https://travis-ci.org/YozhikM/@ivuorinen/stylelint-a11y)
+[![NPM version](http://img.shields.io/npm/v/@ivuorinen/stylelint-a11y.svg)](https://www.npmjs.org/package/@ivuorinen/stylelint-a11y) [![npm](https://img.shields.io/npm/dt/@ivuorinen/stylelint-a11y.svg)](http://www.npmtrends.com/@ivuorinen/stylelint-a11y) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github) [![tests](https://github.com/ivuorinen/stylelint-a11y/actions/workflows/tests.yml/badge.svg)](https://github.com/ivuorinen/stylelint-a11y/actions/workflows/tests.yml)
 
 ## Installation and usage
 
 ```bash
-npm require --dev stylelint @ivuorinen/stylelint-a11y
+npm i --dev stylelint @ivuorinen/stylelint-a11y
 ```
 
 Create the `.stylelintrc.json` config file (or open the existing one), add `stylelint-a11y` to the plugins array and the rules you need to the rules list. All rules from stylelint-a11y need to be namespaced with `a11y`.
