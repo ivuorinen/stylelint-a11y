@@ -1,0 +1,47 @@
+import { messages, ruleName } from '../index.js';
+
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: 'a:focus { outline: 3px solid blue; }',
+    },
+    {
+      code: 'a:focus { color: red !important; }',
+    },
+    {
+      code: '.foo { outline: none !important; }',
+    },
+    {
+      code: 'a:focus-visible { outline: 3px solid blue; }',
+    },
+    {
+      code: 'a:focus { border: 1px solid red; box-shadow: 0 0 3px blue; }',
+    },
+  ],
+
+  reject: [
+    {
+      code: 'a:focus { outline: 3px solid blue !important; }',
+      message: messages.expected('outline', 'a:focus'),
+      line: 1,
+    },
+    {
+      code: 'a:focus-visible { box-shadow: 0 0 3px blue !important; }',
+      message: messages.expected('box-shadow', 'a:focus-visible'),
+      line: 1,
+    },
+    {
+      code: 'a:focus { border: 1px solid red !important; }',
+      message: messages.expected('border', 'a:focus'),
+      line: 1,
+    },
+    {
+      code: 'a:focus { outline-color: blue !important; }',
+      message: messages.expected('outline-color', 'a:focus'),
+      line: 1,
+    },
+  ],
+});
