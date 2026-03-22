@@ -18,3 +18,11 @@ blink {
   color: pink;
 }
 ```
+
+## WCAG Reference
+
+Best practice: avoids obsolete HTML elements in selectors.
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

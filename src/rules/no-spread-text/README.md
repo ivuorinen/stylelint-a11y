@@ -48,3 +48,11 @@ The following patterns are _not_ considered violations:
   max-width: 100px;
 }
 ```
+
+## WCAG Reference
+
+[1.4.8 Visual Presentation (Level AAA)](https://www.w3.org/WAI/WCAG21/Understanding/visual-presentation.html)
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

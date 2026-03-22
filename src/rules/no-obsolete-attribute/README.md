@@ -31,3 +31,11 @@ img[align], a[name] {
   color: pink;
 }
 ```
+
+## WCAG Reference
+
+Best practice: avoids obsolete HTML attributes in selectors.
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

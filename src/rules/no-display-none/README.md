@@ -25,3 +25,11 @@ The following patterns are _not_ considered violations:
   display: flex;
 }
 ```
+
+## WCAG Reference
+
+[1.3.2 Meaningful Sequence (Level A)](https://www.w3.org/WAI/WCAG21/Understanding/meaningful-sequence.html)
+
+---
+
+See all rules in the [main README](../../../README.md#rules).
