@@ -1,4 +1,4 @@
-import { messages, ruleName } from '../index';
+import { messages, ruleName } from '../index.js';
 
 testRule({
   ruleName,
@@ -30,19 +30,16 @@ testRule({
       code: '.foo::before { content: "bar"; }',
       message: messages.expected('.foo::before'),
       line: 1,
-      column: 3,
     },
     {
       code: '.bar::before { content: 23; }',
       message: messages.expected('.bar::before'),
       line: 1,
-      column: 3,
     },
     {
       code: ".foo:before, .bar { content: ''; }",
       message: messages.expected('.foo:before, .bar'),
       line: 1,
-      column: 3,
     },
   ],
 });

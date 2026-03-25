@@ -1,9 +1,10 @@
-import { utils } from 'stylelint';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
 import { parse } from 'postcss';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
-import isStandardSyntaxSelector from 'stylelint/lib/utils/isStandardSyntaxSelector';
-import isStandardSyntaxAtRule from 'stylelint/lib/utils/isStandardSyntaxAtRule';
-import isCustomSelector from 'stylelint/lib/utils/isCustomSelector';
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import isStandardSyntaxSelector from 'stylelint/lib/utils/isStandardSyntaxSelector.mjs';
+import isStandardSyntaxAtRule from 'stylelint/lib/utils/isStandardSyntaxAtRule.mjs';
+import isCustomSelector from 'stylelint/lib/utils/isCustomSelector.mjs';
 
 export const ruleName = 'a11y/media-prefers-reduced-motion';
 
@@ -152,7 +153,6 @@ export default function (actual, _, context) {
 
       if (!isAccepted) {
         utils.report({
-          index: node.lastEach,
           message: messages.expected(selector),
           node,
           ruleName,

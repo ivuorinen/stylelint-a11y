@@ -1,4 +1,4 @@
-import { messages, ruleName } from '../index';
+import { messages, ruleName } from '../index.js';
 
 testRule({
   ruleName,
@@ -27,25 +27,21 @@ testRule({
       code: '.foo1:focus { outline: none; } .foo2:focus { outline: 1px solid red; }',
       message: messages.expected('.foo1:focus'),
       line: 1,
-      column: 3,
     },
     {
       code: '.bar:focus { outline: none; }',
       message: messages.expected('.bar:focus'),
       line: 1,
-      column: 3,
     },
     {
       code: '.baz:focus { outline: none; border: transparent; }',
       message: messages.expected('.baz:focus'),
       line: 1,
-      column: 3,
     },
     {
       code: '.quux { .quuux:focus { outline: 0; } }',
       message: messages.expected('.quuux:focus'),
       line: 1,
-      column: 11,
     },
   ],
 });

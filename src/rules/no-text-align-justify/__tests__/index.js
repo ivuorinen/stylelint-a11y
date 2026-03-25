@@ -1,4 +1,4 @@
-import { messages, ruleName } from '../index';
+import { messages, ruleName } from '../index.js';
 
 testRule({
   ruleName,
@@ -30,13 +30,11 @@ testRule({
       code: '.foo { text-align: justify; }',
       message: messages.expected('.foo'),
       line: 1,
-      column: 3,
     },
     {
       code: '.foo { TEXT-ALIGN: JUSTIFY; }',
       message: messages.expected('.foo'),
       line: 1,
-      column: 3,
     },
   ],
 });

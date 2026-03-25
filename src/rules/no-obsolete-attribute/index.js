@@ -1,6 +1,7 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
-import { obsoleteAttributes } from './obsoleteAttributes';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import { obsoleteAttributes } from './obsoleteAttributes.js';
 
 export const ruleName = 'a11y/no-obsolete-attribute';
 
@@ -46,7 +47,6 @@ export default function (actual) {
 
       if (!isAccepted) {
         utils.report({
-          index: node.lastEach,
           message: messages.expected(selector),
           node,
           ruleName,

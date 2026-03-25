@@ -1,5 +1,6 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 
 export const ruleName = 'a11y/font-size-is-readable';
 
@@ -7,29 +8,47 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Expected a larger font-size in ${selector}`,
 });
 
-const THRESHOLD_IN_PX = 15;
+const DEFAULT_THRESHOLD_PX = 15;
 
 const pxToPt = (v) => 0.75 * v;
 
-const checkInPx = (value) =>
-  value.toLowerCase().endsWith('px') && parseFloat(value) < THRESHOLD_IN_PX;
-const checkInPt = (value) =>
-  value.toLowerCase().endsWith('pt') && parseFloat(value) < pxToPt(THRESHOLD_IN_PX);
+function parseThresholdPx(minSize) {
+  if (!minSize) return DEFAULT_THRESHOLD_PX;
+  if (minSize.toLowerCase().endsWith('pt')) {
+    return parseFloat(minSize) / 0.75;
+  }
+  return parseFloat(minSize);
+}
 
-export default function (actual) {
+export default function (actual, options) {
   return (root, result) => {
-    const validOptions = utils.validateOptions(result, ruleName, { actual });
+    const validOptions = utils.validateOptions(
+      result,
+      ruleName,
+      { actual },
+      {
+        actual: options,
+        possible: { minSize: [(v) => typeof v === 'string'] },
+        optional: true,
+      }
+    );
 
     if (!validOptions || !actual) {
       return;
     }
 
+    const thresholdPx = parseThresholdPx(options?.minSize);
+
+    const checkInPx = (value) =>
+      value.toLowerCase().endsWith('px') && parseFloat(value) < thresholdPx;
+    const checkInPt = (value) =>
+      value.toLowerCase().endsWith('pt') && parseFloat(value) < pxToPt(thresholdPx);
+
     root.walkRules((rule) => {
-      let selector = null;
       if (!isStandardSyntaxRule(rule)) {
         return;
       }
-      selector = rule.selector;
+      const selector = rule.selector;
 
       if (!selector) {
         return;
@@ -45,7 +64,6 @@ export default function (actual) {
 
       if (isRejected) {
         utils.report({
-          index: rule.lastEach,
           message: messages.expected(selector),
           node: rule,
           ruleName,

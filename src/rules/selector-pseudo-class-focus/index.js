@@ -1,5 +1,6 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 
 const deepFlatten = (arr) => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
@@ -73,7 +74,6 @@ export default function (actual, _, context) {
 
       if (!isAccepted) {
         utils.report({
-          index: rule.lastEach,
           message: messages.expected(selector),
           node: rule,
           ruleName,

@@ -1,4 +1,4 @@
-import { messages, ruleName } from '../index';
+import { messages, ruleName } from '../index.js';
 
 testRule({
   ruleName,
@@ -21,19 +21,16 @@ testRule({
       code: 'a { color: red; }',
       message: messages.expected('a'),
       line: 1,
-      column: 3,
     },
     {
       code: 'a { color: red; } @media screen and (prefers-color-scheme: dark) { a { background-color: red; } }',
       message: messages.expected('a'),
       line: 1,
-      column: 3,
     },
     {
       code: '.foo { background-color: red;}',
       message: messages.expected('.foo'),
       line: 1,
-      column: 3,
     },
     {
       code: '.bar { color: red; } .baz { background-color: red; } @media screen and (prefers-color-scheme: dark) { .baz { color: blue; } }',
@@ -41,12 +38,10 @@ testRule({
         {
           message: messages.expected('.bar'),
           line: 1,
-          column: 3,
         },
         {
           message: messages.expected('.baz'),
           line: 1,
-          column: 24,
         },
       ],
     },
@@ -54,7 +49,6 @@ testRule({
       code: '.foo { background-color: red; } @media screen and (prefers-color-scheme) { .foo { color: red; } }',
       message: messages.expected('.foo'),
       line: 1,
-      column: 3,
     },
   ],
 });

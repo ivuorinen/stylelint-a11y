@@ -8,7 +8,7 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Unexpected animation duration greater than 5s in ${selector}`,
 });
 
-const MAX_DURATION_S = 5;
+const DEFAULT_MAX_DURATION_S = 5;
 
 const ignoredValues = ['none', 'inherit', 'initial', 'unset'];
 
@@ -32,13 +32,26 @@ function extractDurationFromShorthand(value) {
   return NaN;
 }
 
-export default function (actual) {
+export default function (actual, options) {
   return (root, result) => {
-    const validOptions = utils.validateOptions(result, ruleName, { actual });
+    const validOptions = utils.validateOptions(
+      result,
+      ruleName,
+      { actual },
+      {
+        actual: options,
+        possible: { maxDuration: [(v) => typeof v === 'string'] },
+        optional: true,
+      }
+    );
 
     if (!validOptions || !actual) {
       return;
     }
+
+    const maxDurationS = options?.maxDuration
+      ? parseDurationToSeconds(options.maxDuration)
+      : DEFAULT_MAX_DURATION_S;
 
     root.walkRules((rule) => {
       if (!isStandardSyntaxRule(rule)) {
@@ -68,14 +81,14 @@ export default function (actual) {
           const segments = value.split(',');
           for (const segment of segments) {
             const d = extractDurationFromShorthand(segment.trim());
-            if (!isNaN(d) && d > MAX_DURATION_S) {
+            if (!isNaN(d) && d > maxDurationS) {
               duration = d;
               break;
             }
           }
         }
 
-        if (!isNaN(duration) && duration > MAX_DURATION_S) {
+        if (!isNaN(duration) && duration > maxDurationS) {
           hasViolation = true;
         }
       });

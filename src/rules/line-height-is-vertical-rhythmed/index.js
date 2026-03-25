@@ -1,5 +1,6 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 
 export const ruleName = 'a11y/line-height-is-vertical-rhythmed';
 
@@ -7,26 +8,47 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Expected a vertical rhythmed line-height in ${selector}`,
 });
 
-function check(node) {
-  if (node.type !== 'rule') {
-    return true;
-  }
+const DEFAULT_MIN_UNITLESS = 1.5;
+const DEFAULT_GRID_PX = 24;
 
-  const checkInPx = (o) => o.value.toLowerCase().endsWith('px') && parseInt(o.value) % 24 !== 0;
-  const checkInRel = (o) => !isNaN(o.value) && parseFloat(o.value) < 1.5;
-
-  return !node.nodes.some(
-    (o) =>
-      o.type === 'decl' && o.prop.toLowerCase() === 'line-height' && (checkInPx(o) || checkInRel(o))
-  );
-}
-
-export default function (actual) {
+export default function (actual, options) {
   return (root, result) => {
-    const validOptions = utils.validateOptions(result, ruleName, { actual });
+    const validOptions = utils.validateOptions(
+      result,
+      ruleName,
+      { actual },
+      {
+        actual: options,
+        possible: {
+          minUnitless: [(v) => typeof v === 'number'],
+          gridPx: [(v) => typeof v === 'number'],
+        },
+        optional: true,
+      }
+    );
 
     if (!validOptions || !actual) {
       return;
+    }
+
+    const minUnitless = options?.minUnitless ?? DEFAULT_MIN_UNITLESS;
+    const gridPx = options?.gridPx ?? DEFAULT_GRID_PX;
+
+    function check(node) {
+      if (node.type !== 'rule') {
+        return true;
+      }
+
+      const checkInPx = (o) =>
+        o.value.toLowerCase().endsWith('px') && parseInt(o.value) % gridPx !== 0;
+      const checkInRel = (o) => !isNaN(o.value) && parseFloat(o.value) < minUnitless;
+
+      return !node.nodes.some(
+        (o) =>
+          o.type === 'decl' &&
+          o.prop.toLowerCase() === 'line-height' &&
+          (checkInPx(o) || checkInRel(o))
+      );
     }
 
     root.walk((node) => {
@@ -49,7 +71,6 @@ export default function (actual) {
 
       if (!isAccepted) {
         utils.report({
-          index: node.lastEach,
           message: messages.expected(selector),
           node,
           ruleName,

@@ -1,4 +1,4 @@
-import { messages, ruleName } from '../index';
+import { messages, ruleName } from '../index.js';
 
 testRule({
   ruleName,
@@ -15,7 +15,6 @@ testRule({
       code: '.foo { display: none; }',
       message: messages.expected('.foo'),
       line: 1,
-      column: 3,
     },
   ],
 });

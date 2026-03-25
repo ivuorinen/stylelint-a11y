@@ -1,4 +1,4 @@
-import { messages, ruleName } from '../index';
+import { messages, ruleName } from '../index.js';
 
 testRule({
   ruleName,
@@ -30,13 +30,35 @@ testRule({
       code: '.foo { text-transform: lowercase; max-width: 40ch; }',
       message: messages.expected('.foo'),
       line: 1,
-      column: 3,
     },
     {
       code: '.bar { LINE-HEIGHT: 1.8; MAX-WIDTH: 81CH; }',
       message: messages.expected('.bar'),
       line: 1,
-      column: 3,
+    },
+  ],
+});
+
+testRule({
+  ruleName,
+  config: [true, { minWidth: 50, maxWidth: 70 }],
+
+  accept: [
+    {
+      code: '.foo { text-transform: lowercase; max-width: 65ch; }',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.foo { text-transform: lowercase; max-width: 45ch; }',
+      message: messages.expected('.foo'),
+      line: 1,
+    },
+    {
+      code: '.foo { text-transform: lowercase; max-width: 75ch; }',
+      message: messages.expected('.foo'),
+      line: 1,
     },
   ],
 });

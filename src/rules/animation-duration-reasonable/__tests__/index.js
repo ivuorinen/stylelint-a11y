@@ -51,3 +51,30 @@ testRule({
     },
   ],
 });
+
+testRule({
+  ruleName,
+  config: [true, { maxDuration: '3s' }],
+
+  accept: [
+    {
+      code: '.foo { animation-duration: 3s; }',
+    },
+    {
+      code: '.foo { transition-duration: 2s; }',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.foo { animation-duration: 4s; }',
+      message: messages.expected('.foo'),
+      line: 1,
+    },
+    {
+      code: '.foo { transition-duration: 3500ms; }',
+      message: messages.expected('.foo'),
+      line: 1,
+    },
+  ],
+});
