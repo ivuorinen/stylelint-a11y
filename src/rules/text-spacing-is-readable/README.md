@@ -40,6 +40,18 @@ The following patterns are _not_ considered violations:
 }
 ```
 
+### `minLetterSpacing` (default: `"0.12em"`)
+
+Set a custom minimum letter-spacing threshold.
+
+### `minWordSpacing` (default: `"0.16em"`)
+
+Set a custom minimum word-spacing threshold.
+
+```json
+{ "a11y/text-spacing-is-readable": [true, { "minLetterSpacing": "0.15em", "minWordSpacing": "0.2em" }] }
+```
+
 ## WCAG Reference
 
 [1.4.12 Text Spacing (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html)
