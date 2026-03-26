@@ -35,6 +35,16 @@ export default function (actual, options) {
     const minWidth = options?.minWidth ?? DEFAULT_MIN_WIDTH;
     const maxWidth = options?.maxWidth ?? DEFAULT_MAX_WIDTH;
 
+    if (minWidth > maxWidth) {
+      utils.report({
+        message: `Invalid options: minWidth (${minWidth}) must not be greater than maxWidth (${maxWidth})`,
+        node: root,
+        ruleName,
+        result,
+      });
+      return;
+    }
+
     root.walkRules((rule) => {
       if (!isStandardSyntaxRule(rule)) {
         return;

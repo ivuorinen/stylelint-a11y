@@ -20,8 +20,8 @@ export default function (actual, options) {
       {
         actual: options,
         possible: {
-          minUnitless: [(v) => typeof v === 'number'],
-          gridPx: [(v) => typeof v === 'number'],
+          minUnitless: [(v) => Number.isFinite(v) && v > 0],
+          gridPx: [(v) => Number.isFinite(v) && v > 0],
         },
         optional: true,
       }
@@ -39,8 +39,11 @@ export default function (actual, options) {
         return true;
       }
 
-      const checkInPx = (o) =>
-        o.value.toLowerCase().endsWith('px') && parseInt(o.value) % gridPx !== 0;
+      const checkInPx = (o) => {
+        if (!o.value.toLowerCase().endsWith('px')) return false;
+        const px = parseFloat(o.value);
+        return !Number.isFinite(px) || px % gridPx !== 0;
+      };
       const checkInRel = (o) => !isNaN(o.value) && parseFloat(o.value) < minUnitless;
 
       return !node.nodes.some(

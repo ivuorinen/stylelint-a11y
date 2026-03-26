@@ -28,7 +28,14 @@ export default function (actual, options) {
       { actual },
       {
         actual: options,
-        possible: { minSize: [(v) => typeof v === 'string'] },
+        possible: {
+          minSize: [
+            (v) =>
+              typeof v === 'string' &&
+              (v.toLowerCase().endsWith('px') || v.toLowerCase().endsWith('pt')) &&
+              Number.isFinite(parseFloat(v)),
+          ],
+        },
         optional: true,
       }
     );
