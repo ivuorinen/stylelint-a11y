@@ -54,7 +54,9 @@ Set a custom minimum word-spacing threshold.
 
 ## WCAG Reference
 
-[1.4.12 Text Spacing (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html)
+Best practice inspired by [1.4.12 Text Spacing (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html).
+
+> **Note:** WCAG 1.4.12 requires that content not break when users override spacing to at least 0.12em letter-spacing and 0.16em word-spacing. This rule enforces author-side minimums as a best-practice heuristic, not a strict compliance check.
 
 ---
 

@@ -26,8 +26,12 @@ export default function (actual, options, context) {
       {
         actual: options,
         possible: {
-          minLetterSpacing: [(v) => typeof v === 'string'],
-          minWordSpacing: [(v) => typeof v === 'string'],
+          minLetterSpacing: [
+            (v) => typeof v === 'string' && v.endsWith('em') && Number.isFinite(parseFloat(v)),
+          ],
+          minWordSpacing: [
+            (v) => typeof v === 'string' && v.endsWith('em') && Number.isFinite(parseFloat(v)),
+          ],
         },
         optional: true,
       }
@@ -68,7 +72,8 @@ export default function (actual, options, context) {
         const value = decl.value.toLowerCase();
 
         if (ignoredValues.includes(value)) return;
-        if (!value.endsWith('em')) return;
+        const isUnitlessZero = /^0(?:\.0+)?$/.test(value);
+        if (!isUnitlessZero && !value.endsWith('em')) return;
 
         if (prop === 'letter-spacing' && parseFloat(value) < minLetterSpacing) {
           if (context.fix) {
