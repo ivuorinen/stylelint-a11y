@@ -72,8 +72,8 @@ export default function (actual, options, context) {
         const value = decl.value.toLowerCase();
 
         if (ignoredValues.includes(value)) return;
-        const isUnitlessZero = /^0(?:\.0+)?$/.test(value);
-        if (!isUnitlessZero && !value.endsWith('em')) return;
+        const isZero = value === '0' || parseFloat(value) === 0;
+        if (!isZero && !value.endsWith('em')) return;
 
         if (prop === 'letter-spacing' && parseFloat(value) < minLetterSpacing) {
           if (context.fix) {
