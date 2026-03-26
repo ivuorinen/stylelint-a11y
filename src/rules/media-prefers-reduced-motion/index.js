@@ -58,7 +58,7 @@ function check(selector, node) {
   if (!declarationsIsMatched) return true;
 
   const parentMatchedNode = parentNodes.some((parentNode) => {
-    if (!parentNode || !parentNode.nodes) return;
+    if (!parentNode || !parentNode.nodes) return false;
     return parentNode.nodes.some((childrenNode) => {
       const childrenNodes = childrenNode.nodes;
 

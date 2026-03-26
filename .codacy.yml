@@ -1,7 +1,4 @@
 exclude_paths:
   - CLAUDE.md
   - docs/**
-engines:
-  eslint:
-    enabled: true
-    config_file: eslint.config.mjs
+  - '*/__tests__/**'
