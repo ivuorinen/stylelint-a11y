@@ -8,16 +8,10 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (prop, selector) => `Unexpected !important on "${prop}" in ${selector}`,
 });
 
-const focusIndicatorProperties = [
-  'outline',
-  'outline-width',
-  'outline-color',
-  'outline-style',
-  'outline-offset',
-  'border',
-  'border-color',
-  'box-shadow',
-];
+const isFocusIndicatorProperty = (prop) =>
+  prop === 'box-shadow' ||
+  /^outline(?:-|$)/.test(prop) ||
+  /^border(?:-(top|right|bottom|left))?(?:-(color|style|width))?$/.test(prop);
 
 export default function (actual) {
   return (root, result) => {
@@ -47,7 +41,7 @@ export default function (actual) {
 
         const prop = decl.prop.toLowerCase();
 
-        if (focusIndicatorProperties.includes(prop)) {
+        if (isFocusIndicatorProperty(prop)) {
           utils.report({
             message: messages.expected(prop, selector),
             node: decl,
