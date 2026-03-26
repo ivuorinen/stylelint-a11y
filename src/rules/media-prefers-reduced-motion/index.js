@@ -18,13 +18,13 @@ function checkChildrenNodes(childrenNodes, currentSelector, parentNode) {
   return childrenNodes.some((declaration) => {
     const index = targetProperties.indexOf(declaration.prop);
     if (index < 0) return false;
+    const matchedProp = targetProperties[index];
     if (parentNode.params.indexOf('prefers-reduced-motion') === -1) return false;
     if (declaration.value !== 'none') return false;
 
-    if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
-      return true;
+    if (currentSelector === 'animation-name' && matchedProp === 'animation') return true;
 
-    return currentSelector === targetProperties[index];
+    return currentSelector === matchedProp;
   });
 }
 
@@ -49,12 +49,14 @@ function check(selector, node) {
   const declarationsIsMatched = declarations.some((declaration) => {
     const noMatchedParams = !params || params.indexOf('prefers-reduced-motion') === -1;
     const index = targetProperties.indexOf(declaration.prop);
-    currentSelector = targetProperties[index];
-    if (targetProperties.indexOf(declaration.prop) >= 0 && declaration.value === 'none') {
+    if (index < 0) return false;
+    const matchedProp = targetProperties[index];
+    currentSelector = matchedProp;
+    if (declaration.value === 'none') {
       return false;
     }
 
-    return index >= 0 && noMatchedParams;
+    return noMatchedParams;
   });
 
   if (!declarationsIsMatched) return true;
@@ -72,12 +74,12 @@ function check(selector, node) {
         return childrenNodes.some((declaration) => {
           const index = targetProperties.indexOf(declaration.prop);
           if (index < 0) return false;
+          const matchedProp = targetProperties[index];
           if (declaration.value !== 'none') return false;
 
-          if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
-            return true;
+          if (currentSelector === 'animation-name' && matchedProp === 'animation') return true;
 
-          return currentSelector === targetProperties[index];
+          return currentSelector === matchedProp;
         });
       }
 
