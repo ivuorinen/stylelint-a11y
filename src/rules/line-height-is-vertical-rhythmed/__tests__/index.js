@@ -45,9 +45,10 @@ testRule({
       line: 1,
     },
     {
-      code: '.foo { line-height: 12px; }',
-      message: messages.expected('.foo'),
+      code: '@media screen { .bar { line-height: 7px; } }',
+      message: messages.expected('.bar'),
       line: 1,
+      description: 'rejects invalid line-height inside media queries',
     },
     {
       code: '.foo { LINE-HEIGHT: 23PX; }',

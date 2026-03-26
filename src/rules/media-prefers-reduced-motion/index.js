@@ -17,12 +17,14 @@ const targetProperties = ['transition', 'animation', 'animation-name'];
 function checkChildrenNodes(childrenNodes, currentSelector, parentNode) {
   return childrenNodes.some((declaration) => {
     const index = targetProperties.indexOf(declaration.prop);
-    if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
-      return true;
-    if (currentSelector !== targetProperties[index]) return false;
+    if (index < 0) return false;
+    if (parentNode.params.indexOf('prefers-reduced-motion') === -1) return false;
     if (declaration.value !== 'none') return false;
 
-    return index >= 0 && parentNode.params.indexOf('prefers-reduced-motion') >= 0;
+    if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
+      return true;
+
+    return currentSelector === targetProperties[index];
   });
 }
 
@@ -69,12 +71,13 @@ function check(selector, node) {
         if (!Array.isArray(childrenNodes) || childrenNodes.length === 0) return false;
         return childrenNodes.some((declaration) => {
           const index = targetProperties.indexOf(declaration.prop);
-          if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
-            return true;
-          if (currentSelector !== targetProperties[index]) return false;
+          if (index < 0) return false;
           if (declaration.value !== 'none') return false;
 
-          return index >= 0;
+          if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
+            return true;
+
+          return currentSelector === targetProperties[index];
         });
       }
 
@@ -120,10 +123,6 @@ export default function (actual, _, context) {
       const isAccepted = check(selector, node);
 
       if (context.fix && !isAccepted) {
-        const media = parse('@media screen and (prefers-reduced-motion: reduce) {}');
-        media.nodes.forEach((o) => {
-          o.raws.after = '\n';
-        });
         const cloneRule = node.clone();
         cloneRule.raws = {
           ...cloneRule.raws,
@@ -139,8 +138,35 @@ export default function (actual, _, context) {
             o.value = 'none';
           }
         });
-        media.first.append(cloneRule);
-        node.before(media);
+
+        // Look for an existing @media (prefers-reduced-motion) block
+        let existingMedia = null;
+        node.root().walkAtRules('media', (atRule) => {
+          if (atRule.params.indexOf('prefers-reduced-motion') >= 0) {
+            existingMedia = atRule;
+          }
+        });
+
+        if (existingMedia) {
+          // Check if selector already exists in the media block
+          let found = false;
+          existingMedia.walkRules((rule) => {
+            if (rule.selector === node.selector) {
+              rule.replaceWith(cloneRule);
+              found = true;
+            }
+          });
+          if (!found) {
+            existingMedia.append(cloneRule);
+          }
+        } else {
+          const media = parse('@media screen and (prefers-reduced-motion: reduce) {}');
+          media.nodes.forEach((o) => {
+            o.raws.after = '\n';
+          });
+          media.first.append(cloneRule);
+          node.before(media);
+        }
         return;
       }
 

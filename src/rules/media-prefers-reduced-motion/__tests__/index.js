@@ -37,14 +37,14 @@ testRule({
     {
       code: 'a { animation-name: skew; } @media screen and (prefers-reduced-motion) { a { transition: none; } }',
       fixed:
-        '@media screen and (prefers-reduced-motion: reduce) {\na { animation: none;\n}\n} a { animation-name: skew; } @media screen and (prefers-reduced-motion) { a { transition: none; } }',
+        'a { animation-name: skew; } @media screen and (prefers-reduced-motion) {\na { animation: none;\n} }',
       message: messages.expected('a'),
       line: 1,
     },
     {
       code: '.foo { animation: 1s ease-in; } @media screen and (prefers-reduced-motion) { .foo { animation: 1s ease-in; } }',
       fixed:
-        '@media screen and (prefers-reduced-motion: reduce) {\n.foo { animation: none;\n}\n} .foo { animation: 1s ease-in; } @media screen and (prefers-reduced-motion) { .foo { animation: 1s ease-in; } }',
+        '.foo { animation: 1s ease-in; } @media screen and (prefers-reduced-motion) {\n.foo { animation: none;\n} }',
       message: messages.expected('.foo'),
       line: 1,
     },
@@ -118,7 +118,7 @@ testRule({
     {
       code: '.foo { animation: spin 1s; } @media screen and (prefers-reduced-motion) { .foo { animation: spin 0.5s; } }',
       fixed:
-        '@media screen and (prefers-reduced-motion: reduce) {\n.foo { animation: none;\n}\n} .foo { animation: spin 1s; } @media screen and (prefers-reduced-motion) { .foo { animation: spin 0.5s; } }',
+        '.foo { animation: spin 1s; } @media screen and (prefers-reduced-motion) {\n.foo { animation: none;\n} }',
       message: messages.expected('.foo'),
       line: 1,
       description: 'rejects when counterpart does not set value to none',
@@ -157,7 +157,7 @@ testRule({
     {
       code: '.baz { animation-name: fade; } @media screen and (prefers-reduced-motion) { .baz { transition: none; } }',
       fixed:
-        '@media screen and (prefers-reduced-motion: reduce) {\n.baz { animation: none;\n}\n} .baz { animation-name: fade; } @media screen and (prefers-reduced-motion) { .baz { transition: none; } }',
+        '.baz { animation-name: fade; } @media screen and (prefers-reduced-motion) {\n.baz { animation: none;\n} }',
       message: messages.expected('.baz'),
       line: 1,
       description: 'rejects animation-name when counterpart sets wrong property',
