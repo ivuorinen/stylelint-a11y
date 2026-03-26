@@ -34,12 +34,8 @@ export default function (actual, options) {
     const minUnitless = options?.minUnitless ?? DEFAULT_MIN_UNITLESS;
     const gridPx = options?.gridPx ?? DEFAULT_GRID_PX;
 
-    /** Checks if a node's line-height follows the vertical rhythm grid. */
+    /** Checks if a rule's line-height follows the vertical rhythm grid. */
     function check(node) {
-      if (node.type !== 'rule') {
-        return true;
-      }
-
       const checkInPx = (o) => {
         if (!o.value.toLowerCase().endsWith('px')) return false;
         const px = parseFloat(o.value);
@@ -55,17 +51,11 @@ export default function (actual, options) {
       );
     }
 
-    root.walk((node) => {
-      let selector = null;
-
-      if (node.type === 'rule') {
-        if (!isStandardSyntaxRule(node)) {
-          return;
-        }
-        selector = node.selector;
-      } else if (node.type === 'atrule' && node.name.toLowerCase() === 'page' && node.params) {
-        selector = node.params;
+    root.walkRules((node) => {
+      if (!isStandardSyntaxRule(node)) {
+        return;
       }
+      const selector = node.selector;
 
       if (!selector) {
         return;

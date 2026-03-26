@@ -68,7 +68,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 78 in create-media-query-rule)
+// Non-standard syntax selectors are skipped
 testRule({
   ruleName,
   config: [true],
@@ -81,7 +81,7 @@ testRule({
   ],
 });
 
-// @page atrule with params (line 83-87 in create-media-query-rule)
+// @page atrule is walked but has no color properties
 testRule({
   ruleName,
   config: [true],
@@ -94,7 +94,7 @@ testRule({
   ],
 });
 
-// Custom selector check (line 27 in create-media-query-rule)
+// Custom selectors (:--prefixed) are skipped
 testRule({
   ruleName,
   config: [true],

@@ -66,6 +66,7 @@ function check(selector, node) {
         childrenNode.type === 'atrule' &&
         childrenNode.params.indexOf('prefers-reduced-motion') >= 0
       ) {
+        if (!Array.isArray(childrenNodes) || childrenNodes.length === 0) return false;
         return childrenNodes.some((declaration) => {
           const index = targetProperties.indexOf(declaration.prop);
           if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')

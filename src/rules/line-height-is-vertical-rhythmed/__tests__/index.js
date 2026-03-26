@@ -112,7 +112,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 63)
+// Non-standard syntax selectors are skipped
 testRule({
   ruleName,
   config: [true],
@@ -122,36 +122,14 @@ testRule({
       code: '%placeholder { line-height: 1px; }',
       description: 'skips SCSS placeholder selectors',
     },
-  ],
-});
-
-// @page atrule with params (line 67)
-testRule({
-  ruleName,
-  config: [true],
-
-  accept: [
-    {
-      code: '@page :first { margin: 1cm; }',
-      description: '@page atrule with params is walked (no line-height issue)',
-    },
-  ],
-});
-
-// Non-rule node type (line 40) - check returns true for atrule nodes
-testRule({
-  ruleName,
-  config: [true],
-
-  accept: [
     {
       code: '@media screen { .foo { line-height: 24px; } }',
-      description: 'non-rule node type returns true from check',
+      description: 'rules inside media queries are still checked',
     },
   ],
 });
 
-// Invalid options (line 31)
+// Invalid options
 testRule({
   ruleName,
   config: [true, { minUnitless: -1 }],

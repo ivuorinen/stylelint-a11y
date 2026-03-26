@@ -66,7 +66,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 113)
+// Non-standard syntax selectors are skipped
 testRule({
   ruleName,
   config: [true],
@@ -79,7 +79,7 @@ testRule({
   ],
 });
 
-// @page atrule (line 118-122)
+// Edge cases: @page, custom selectors, empty rules, non-animation rules
 testRule({
   ruleName,
   config: [true],
@@ -87,58 +87,20 @@ testRule({
   accept: [
     {
       code: '@page :first { margin: 1cm; }',
-      description: '@page atrule with params is walked but has no animation',
+      description: '@page atrule with no animation properties',
     },
-  ],
-});
-
-// Custom selector check (line 42) - isCustomSelector checks :--prefixed selectors
-// But :--custom IS standard syntax, it's just a custom selector
-// The check function returns true for custom selectors
-testRule({
-  ruleName,
-  config: [true],
-
-  accept: [
     {
       code: ':--custom { transition: all 0.3s; }',
-      description: 'custom selector is skipped in check function',
+      description: 'custom selector is skipped',
     },
-  ],
-});
-
-// No declarations in node (line 38 - !declarations)
-testRule({
-  ruleName,
-  config: [true],
-
-  accept: [
     {
       code: 'a { }',
-      description: 'empty rule with no declarations returns true',
+      description: 'empty rule with no declarations',
     },
-  ],
-});
-
-// transition: none inside prefers-reduced-motion (line 73 - not matched)
-testRule({
-  ruleName,
-  config: [true],
-
-  accept: [
     {
       code: '.foo { transition: all 0.3s; } @media screen and (prefers-reduced-motion) { .foo { transition: none } }',
       description: 'transition matched by media query counterpart',
     },
-  ],
-});
-
-// Non-standard syntax for atrule (line 97)
-testRule({
-  ruleName,
-  config: [true],
-
-  accept: [
     {
       code: '@media screen { a { color: red; } }',
       description: 'no animation properties means accepted',
@@ -146,7 +108,7 @@ testRule({
   ],
 });
 
-// Value not 'none' in prefers-reduced-motion counterpart (line 73)
+// Counterpart value not set to none is rejected
 testRule({
   ruleName,
   config: [true],
@@ -159,15 +121,33 @@ testRule({
         '@media screen and (prefers-reduced-motion: reduce) {\n.foo { animation: none;\n}\n} .foo { animation: spin 1s; } @media screen and (prefers-reduced-motion) { .foo { animation: spin 0.5s; } }',
       message: messages.expected('.foo'),
       line: 1,
-      description: 'rejects when prefers-reduced-motion counterpart does not set value to none',
+      description: 'rejects when counterpart does not set value to none',
+    },
+    {
+      code: '.bar { transition: all 0.3s; }',
+      fixed:
+        '@media screen and (prefers-reduced-motion: reduce) {\n.bar { transition: none;\n}\n}\n.bar { transition: all 0.3s; }',
+      message: messages.expected('.bar'),
+      line: 1,
+      description: 'rejects transition without any reduced-motion counterpart',
     },
   ],
 });
 
-// Non-standard selector in check function (line 38) - SCSS interpolation passed as selector
-// This is hit when the selector passed to check() is non-standard
-// But isStandardSyntaxRule prevents it from reaching check(), so this is unreachable
-// Testing that transition with non-matching property is rejected
+// animation-name matched by animation shorthand in media query
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.foo { animation-name: slide; } @media screen and (prefers-reduced-motion) { .foo { animation: none; } }',
+      description: 'animation-name matched by animation shorthand in counterpart',
+    },
+  ],
+});
+
+// animation-name without matching counterpart is rejected
 testRule({
   ruleName,
   config: [true],
@@ -175,11 +155,12 @@ testRule({
 
   reject: [
     {
-      code: '.bar { transition: all 0.3s; }',
+      code: '.baz { animation-name: fade; } @media screen and (prefers-reduced-motion) { .baz { transition: none; } }',
       fixed:
-        '@media screen and (prefers-reduced-motion: reduce) {\n.bar { transition: none;\n}\n}\n.bar { transition: all 0.3s; }',
-      message: messages.expected('.bar'),
+        '@media screen and (prefers-reduced-motion: reduce) {\n.baz { animation: none;\n}\n} .baz { animation-name: fade; } @media screen and (prefers-reduced-motion) { .baz { transition: none; } }',
+      message: messages.expected('.baz'),
       line: 1,
+      description: 'rejects animation-name when counterpart sets wrong property',
     },
   ],
 });
