@@ -9,13 +9,19 @@ export const messages = utils.ruleMessages(ruleName, {
 });
 
 const DEFAULT_THRESHOLD_PX = 15;
+const DEFAULT_REM_PX = 16;
 
 const pxToPt = (v) => 0.75 * v;
+const pxToRem = (v) => v / DEFAULT_REM_PX;
 
 function parseThresholdPx(minSize) {
   if (!minSize) return DEFAULT_THRESHOLD_PX;
-  if (minSize.toLowerCase().endsWith('pt')) {
+  const lower = minSize.toLowerCase();
+  if (lower.endsWith('pt')) {
     return parseFloat(minSize) / 0.75;
+  }
+  if (lower.endsWith('rem')) {
+    return parseFloat(minSize) * DEFAULT_REM_PX;
   }
   return parseFloat(minSize);
 }
@@ -30,10 +36,14 @@ export default function (actual, options) {
         actual: options,
         possible: {
           minSize: [
-            (v) =>
-              typeof v === 'string' &&
-              (v.toLowerCase().endsWith('px') || v.toLowerCase().endsWith('pt')) &&
-              Number.isFinite(parseFloat(v)),
+            (v) => {
+              if (typeof v !== 'string') return false;
+              const lower = v.toLowerCase();
+              return (
+                (lower.endsWith('px') || lower.endsWith('pt') || lower.endsWith('rem')) &&
+                Number.isFinite(parseFloat(v))
+              );
+            },
           ],
         },
         optional: true,
@@ -50,6 +60,8 @@ export default function (actual, options) {
       value.toLowerCase().endsWith('px') && parseFloat(value) < thresholdPx;
     const checkInPt = (value) =>
       value.toLowerCase().endsWith('pt') && parseFloat(value) < pxToPt(thresholdPx);
+    const checkInRem = (value) =>
+      value.toLowerCase().endsWith('rem') && parseFloat(value) < pxToRem(thresholdPx);
 
     root.walkRules((rule) => {
       if (!isStandardSyntaxRule(rule)) {
@@ -65,7 +77,7 @@ export default function (actual, options) {
         return (
           o.type === 'decl' &&
           o.prop.toLowerCase() === 'font-size' &&
-          (checkInPx(o.value) || checkInPt(o.value))
+          (checkInPx(o.value) || checkInPt(o.value) || checkInRem(o.value))
         );
       });
 
