@@ -2,7 +2,7 @@
 
 Require readable text spacing (letter-spacing >= 0.12em, word-spacing >= 0.16em).
 
-The `--fix` option on the command line can automatically fix all of the problems reported by this rule.
+The `--fix` option on the command line can automatically fix all the problems reported by this rule.
 
 ## Options
 
@@ -37,8 +37,11 @@ The following patterns are _not_ considered violations:
 ```css
 .bar {
   display: flex;
+  padding: 1em;
 }
 ```
+
+_(Rule only fires on selectors with text-related properties.)_
 
 ### `minLetterSpacing` (default: `"0.12em"`)
 

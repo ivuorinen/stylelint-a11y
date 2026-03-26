@@ -11,7 +11,9 @@ export const messages = utils.ruleMessages(ruleName, {
 const isFocusIndicatorProperty = (prop) =>
   prop === 'box-shadow' ||
   /^outline(?:-|$)/.test(prop) ||
-  /^border(?:-(top|right|bottom|left))?(?:-(color|style|width))?$/.test(prop);
+  /^border(?:-(top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?(?:-(color|style|width))?$/.test(
+    prop
+  );
 
 export default function (actual) {
   return (root, result) => {

@@ -43,5 +43,15 @@ testRule({
       message: messages.expected('outline-color', 'a:focus'),
       line: 1,
     },
+    {
+      code: 'a:focus { border-inline-color: blue !important; }',
+      message: messages.expected('border-inline-color', 'a:focus'),
+      line: 1,
+    },
+    {
+      code: 'a:focus { border-block-start-width: 2px !important; }',
+      message: messages.expected('border-block-start-width', 'a:focus'),
+      line: 1,
+    },
   ],
 });
