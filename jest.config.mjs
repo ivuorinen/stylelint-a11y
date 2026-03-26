@@ -3,7 +3,7 @@ export default {
   preset: 'jest-preset-stylelint',
   clearMocks: true,
   collectCoverage: false,
-  collectCoverageFrom: ['src/**/*.js'],
+  collectCoverageFrom: ['src/**/*.js', '!src/rules/index.js'],
   coverageDirectory: './.coverage/',
   coverageReporters: ['lcov', 'text'],
   coverageThreshold: {

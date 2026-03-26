@@ -123,3 +123,56 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: '.foo { font-size: 1px; }',
+      message:
+        'Invalid option value "false" for rule "a11y/font-size-is-readable".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule skipped (line 72)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { font-size: 1px; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
+
+// pt threshold parsing (line 25)
+testRule({
+  ruleName,
+  config: [true, { minSize: '12pt' }],
+
+  accept: [
+    {
+      code: '.foo { font-size: 12pt; }',
+      description: 'pt threshold: at threshold',
+    },
+    {
+      code: '.foo { font-size: 16px; }',
+      description: 'pt threshold: above threshold in px',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.foo { font-size: 10pt; }',
+      message: messages.expected('.foo'),
+      line: 1,
+    },
+  ],
+});

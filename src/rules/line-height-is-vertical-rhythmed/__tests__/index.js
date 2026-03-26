@@ -96,3 +96,72 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: '.foo { line-height: 1px; }',
+      message:
+        'Invalid option value "false" for rule "a11y/line-height-is-vertical-rhythmed".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule skipped (line 63)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { line-height: 1px; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
+
+// @page atrule with params (line 67)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '@page :first { margin: 1cm; }',
+      description: '@page atrule with params is walked (no line-height issue)',
+    },
+  ],
+});
+
+// Non-rule node type (line 40) - check returns true for atrule nodes
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '@media screen { .foo { line-height: 24px; } }',
+      description: 'non-rule node type returns true from check',
+    },
+  ],
+});
+
+// Invalid options (line 31)
+testRule({
+  ruleName,
+  config: [true, { minUnitless: -1 }],
+
+  reject: [
+    {
+      code: '.foo { line-height: 1px; }',
+      description: 'rejects invalid option (negative minUnitless)',
+      message:
+        'Invalid value "-1" for option "minUnitless" of rule "a11y/line-height-is-vertical-rhythmed"',
+    },
+  ],
+});

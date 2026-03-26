@@ -78,3 +78,57 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: '.foo { animation-duration: 999s; }',
+      message:
+        'Invalid option value "false" for rule "a11y/animation-duration-reasonable".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule should be skipped (line 62)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { animation-duration: 999s; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
+
+// Duration value with no unit (parseDurationToSeconds returns NaN, line 23)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.foo { animation-duration: 100; }',
+      description: 'unitless duration value returns NaN and is ignored',
+    },
+  ],
+});
+
+// Shorthand with no time value (extractDurationFromShorthand returns NaN, line 34)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.foo { animation: spin linear infinite; }',
+      description: 'shorthand with no time value returns NaN',
+    },
+  ],
+});

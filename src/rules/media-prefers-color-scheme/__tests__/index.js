@@ -52,3 +52,57 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: 'a { color: red; }',
+      message:
+        'Invalid option value "false" for rule "a11y/media-prefers-color-scheme".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule skipped (line 78 in create-media-query-rule)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { color: red; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
+
+// @page atrule with params (line 83-87 in create-media-query-rule)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '@page :first { margin: 1cm; }',
+      description: '@page atrule with params is walked',
+    },
+  ],
+});
+
+// Custom selector check (line 27 in create-media-query-rule)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: ':--custom { color: red; }',
+      description: 'custom selector is skipped in check function',
+    },
+  ],
+});

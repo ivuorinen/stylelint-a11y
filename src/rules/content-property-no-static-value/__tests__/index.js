@@ -43,3 +43,44 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: '.foo { content: "static text"; }',
+      message:
+        'Invalid option value "false" for rule "a11y/content-property-no-static-value".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule skipped (line 51)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { content: "static text"; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
+
+// @page atrule with params (line 55)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '@page :first { margin: 1cm; }',
+      description: '@page atrule with params is walked but has no content property',
+    },
+  ],
+});

@@ -57,44 +57,34 @@ function check(selector, node) {
 
   if (!declarationsIsMatched) return true;
 
-  if (declarationsIsMatched) {
-    const parentMatchedNode = parentNodes.some((parentNode) => {
-      if (!parentNode || !parentNode.nodes) return;
-      return parentNode.nodes.some((childrenNode) => {
-        const childrenNodes = childrenNode.nodes;
+  const parentMatchedNode = parentNodes.some((parentNode) => {
+    if (!parentNode || !parentNode.nodes) return;
+    return parentNode.nodes.some((childrenNode) => {
+      const childrenNodes = childrenNode.nodes;
 
-        if (
-          childrenNode.type === 'atrule' &&
-          childrenNode.params.indexOf('prefers-reduced-motion') >= 0
-        ) {
-          return childrenNodes.some((declaration) => {
-            const index = targetProperties.indexOf(declaration.prop);
-            if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
-              return true;
-            if (currentSelector !== targetProperties[index]) return false;
-            if (declaration.value !== 'none') return false;
+      if (
+        childrenNode.type === 'atrule' &&
+        childrenNode.params.indexOf('prefers-reduced-motion') >= 0
+      ) {
+        return childrenNodes.some((declaration) => {
+          const index = targetProperties.indexOf(declaration.prop);
+          if (currentSelector === 'animation-name' && targetProperties[index] === 'animation')
+            return true;
+          if (currentSelector !== targetProperties[index]) return false;
+          if (declaration.value !== 'none') return false;
 
-            return index >= 0;
-          });
-        }
+          return index >= 0;
+        });
+      }
 
-        if (
-          !parentNode.params ||
-          !Array.isArray(childrenNodes) ||
-          selector !== childrenNode.selector
-        )
-          return false;
+      if (!parentNode.params || !Array.isArray(childrenNodes) || selector !== childrenNode.selector)
+        return false;
 
-        return checkChildrenNodes(childrenNodes, currentSelector, parentNode);
-      });
+      return checkChildrenNodes(childrenNodes, currentSelector, parentNode);
     });
+  });
 
-    if (!parentMatchedNode) return false;
-
-    return true;
-  }
-
-  return true;
+  return parentMatchedNode;
 }
 
 export default function (actual, _, context) {

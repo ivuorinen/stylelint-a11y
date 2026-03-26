@@ -74,3 +74,47 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: '.foo { color: red; letter-spacing: 0.01em; }',
+      message:
+        'Invalid option value "false" for rule "a11y/text-spacing-is-readable".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule skipped (line 56)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { color: red; letter-spacing: 0.01em; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
+
+// Zero word-spacing triggers rejection (line 61 - empty selector guard)
+testRule({
+  ruleName,
+  config: [true],
+  fix: true,
+
+  reject: [
+    {
+      code: '.foo { color: red; word-spacing: 0; }',
+      fixed: '.foo { color: red; word-spacing: 0.16em; }',
+      message: messages.expectedWordSpacing('.foo', '0.16em'),
+      line: 1,
+    },
+  ],
+});

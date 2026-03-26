@@ -49,3 +49,31 @@ testRule({
     },
   ],
 });
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: 'a:hover { }',
+      message:
+        'Invalid option value "false" for rule "a11y/selector-pseudo-class-focus".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Non-standard syntax rule skipped (line 45)
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder:hover { color: red; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+  ],
+});
