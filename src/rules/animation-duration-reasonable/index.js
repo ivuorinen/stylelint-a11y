@@ -5,7 +5,7 @@ import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 export const ruleName = 'a11y/animation-duration-reasonable';
 
 export const messages = utils.ruleMessages(ruleName, {
-  expected: (selector) => `Unexpected animation duration greater than 5s in ${selector}`,
+  expected: (selector, threshold) => `Unexpected duration greater than ${threshold} in ${selector}`,
 });
 
 const DEFAULT_MAX_DURATION_S = 5;
@@ -40,7 +40,9 @@ export default function (actual, options) {
       { actual },
       {
         actual: options,
-        possible: { maxDuration: [(v) => typeof v === 'string'] },
+        possible: {
+          maxDuration: [(v) => typeof v === 'string' && !Number.isNaN(parseDurationToSeconds(v))],
+        },
         optional: true,
       }
     );
@@ -76,7 +78,14 @@ export default function (actual, options) {
         let duration = NaN;
 
         if (prop === 'animation-duration' || prop === 'transition-duration') {
-          duration = parseDurationToSeconds(value);
+          const segments = value.split(',');
+          for (const segment of segments) {
+            const d = parseDurationToSeconds(segment.trim());
+            if (!isNaN(d) && d > maxDurationS) {
+              duration = d;
+              break;
+            }
+          }
         } else if (prop === 'animation' || prop === 'transition') {
           const segments = value.split(',');
           for (const segment of segments) {
@@ -95,7 +104,7 @@ export default function (actual, options) {
 
       if (hasViolation) {
         utils.report({
-          message: messages.expected(selector),
+          message: messages.expected(selector, options?.maxDuration || '5s'),
           node: rule,
           ruleName,
           result,

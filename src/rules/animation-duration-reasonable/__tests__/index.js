@@ -31,22 +31,22 @@ testRule({
   reject: [
     {
       code: '.foo { animation-duration: 10s; }',
-      message: messages.expected('.foo'),
+      message: messages.expected('.foo', '5s'),
       line: 1,
     },
     {
       code: '.foo { transition-duration: 6000ms; }',
-      message: messages.expected('.foo'),
+      message: messages.expected('.foo', '5s'),
       line: 1,
     },
     {
       code: '.foo { transition: opacity 6s linear; }',
-      message: messages.expected('.foo'),
+      message: messages.expected('.foo', '5s'),
       line: 1,
     },
     {
       code: '.foo { animation: spin 10s linear infinite; }',
-      message: messages.expected('.foo'),
+      message: messages.expected('.foo', '5s'),
       line: 1,
     },
   ],
@@ -68,12 +68,12 @@ testRule({
   reject: [
     {
       code: '.foo { animation-duration: 4s; }',
-      message: messages.expected('.foo'),
+      message: messages.expected('.foo', '3s'),
       line: 1,
     },
     {
       code: '.foo { transition-duration: 3500ms; }',
-      message: messages.expected('.foo'),
+      message: messages.expected('.foo', '3s'),
       line: 1,
     },
   ],
