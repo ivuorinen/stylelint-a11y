@@ -44,7 +44,7 @@ Please refer to [stylelint docs][stylelint-guide] for the detailed info on using
 
 Add recommended configuration by simply adding the following to `extends` in your stylelint configuration:
 
-```shell
+```
 stylelint-a11y/recommended
 ```
 

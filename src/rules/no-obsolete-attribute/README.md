@@ -34,7 +34,7 @@ img[align], a[name] {
 
 ## WCAG Reference
 
-Best practice: avoids obsolete HTML attributes in selectors.
+Best practice: avoid obsolete HTML attributes in selectors.
 
 ---
 

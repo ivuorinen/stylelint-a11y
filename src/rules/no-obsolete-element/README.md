@@ -21,7 +21,7 @@ blink {
 
 ## WCAG Reference
 
-Best practice: avoids obsolete HTML elements in selectors.
+Best practice: avoid obsolete HTML elements in selectors.
 
 ---
 
