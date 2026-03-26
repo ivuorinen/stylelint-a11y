@@ -10,7 +10,9 @@ Disallow not vertical rhythmed line-height.
 
 ### true
 
-**Thresholds:** Pixel values must be divisible by 24 (vertical rhythm grid). Unitless/relative values must be >= 1.5.
+**Thresholds:** Pixel values must be divisible by 24
+(vertical rhythm grid). Unitless/relative values
+must be >= 1.5.
 
 The following pattern are considered violations:
 
@@ -58,10 +60,15 @@ Set a custom minimum for unitless/relative line-height values.
 
 ### `gridPx` (default: `24`)
 
-Set a custom pixel grid for vertical rhythm. Pixel line-height values must be divisible by this number.
+Set a custom pixel grid for vertical rhythm. Pixel
+line-height values must be divisible by this number.
 
 ```json
-{ "a11y/line-height-is-vertical-rhythmed": [true, { "minUnitless": 1.8, "gridPx": 12 }] }
+{
+  "a11y/line-height-is-vertical-rhythmed": [
+    true, { "minUnitless": 1.8, "gridPx": 12 }
+  ]
+}
 ```
 
 ## WCAG Reference

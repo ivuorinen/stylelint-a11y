@@ -36,7 +36,11 @@ The following pattern are considered violations:
 }
 ```
 
-In this example, `.bar` is a violation because it has `color` with no `prefers-color-scheme` counterpart. `.baz` is also a violation because its dark-mode block changes `background-color`, not `color` (the property must match).
+In this example, `.bar` is a violation because it has
+`color` with no `prefers-color-scheme` counterpart.
+`.baz` is also a violation because its dark-mode block
+changes `background-color`, not `color`
+(the property must match).
 
 ```css
 .foo {

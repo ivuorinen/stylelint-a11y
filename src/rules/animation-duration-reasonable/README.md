@@ -36,7 +36,9 @@ The following patterns are _not_ considered violations:
 
 ### `maxDuration` (default: `"5s"`)
 
-Set a custom maximum animation/transition duration. Values greater than this are reported. Supports `s` and `ms` units.
+Set a custom maximum animation/transition duration.
+Values greater than this are reported.
+Supports `s` and `ms` units.
 
 ```json
 { "a11y/animation-duration-reasonable": [true, { "maxDuration": "3s" }] }

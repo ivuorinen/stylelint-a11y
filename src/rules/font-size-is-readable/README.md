@@ -35,7 +35,8 @@ The following patterns are _not_ considered violations:
 
 ### `minSize` (default: `"15px"`)
 
-Set a custom minimum font size. Values strictly less than this are rejected. Supports `px` and `pt` units.
+Set a custom minimum font size. Values strictly less
+than this are rejected. Supports `px` and `pt` units.
 
 ```json
 { "a11y/font-size-is-readable": [true, { "minSize": "16px" }] }

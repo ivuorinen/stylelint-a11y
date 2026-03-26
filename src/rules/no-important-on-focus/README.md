@@ -1,8 +1,12 @@
 # no-important-on-focus
 
-Disallow `!important` on focus indicator properties in `:focus` or `:focus-visible` rules.
+Disallow `!important` on focus indicator properties
+in `:focus` or `:focus-visible` rules.
 
-Using `!important` on outline, border, or box-shadow in focus rules can override user-agent or user stylesheets that provide custom focus indicators for assistive technology.
+Using `!important` on outline, border, or box-shadow
+in focus rules can override user-agent or user
+stylesheets that provide custom focus indicators
+for assistive technology.
 
 ## Options
 

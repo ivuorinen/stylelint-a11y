@@ -1,8 +1,11 @@
 # text-spacing-is-readable
 
-Require readable text spacing (letter-spacing >= 0.12em, word-spacing >= 0.16em).
+Require readable text spacing
+(letter-spacing >= 0.12em, word-spacing >= 0.16em).
 
-The `--fix` option on the command line can automatically fix all the problems reported by this rule.
+The `--fix` option on the command line can
+automatically fix all the problems reported
+by this rule.
 
 ## Options
 
@@ -41,7 +44,8 @@ The following patterns are _not_ considered violations:
 }
 ```
 
-_(Rule only fires on selectors with text-related properties.)_
+**Note:** Rule only fires on selectors with
+text-related properties.
 
 ### `minLetterSpacing` (default: `"0.12em"`)
 
@@ -52,14 +56,30 @@ Set a custom minimum letter-spacing threshold.
 Set a custom minimum word-spacing threshold.
 
 ```json
-{ "a11y/text-spacing-is-readable": [true, { "minLetterSpacing": "0.15em", "minWordSpacing": "0.2em" }] }
+{
+  "a11y/text-spacing-is-readable": [
+    true,
+    {
+      "minLetterSpacing": "0.15em",
+      "minWordSpacing": "0.2em"
+    }
+  ]
+}
 ```
 
 ## WCAG Reference
 
-Best practice inspired by [1.4.12 Text Spacing (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html).
+Best practice inspired by
+[1.4.12 Text Spacing (Level AA)][text-spacing].
 
-> **Note:** WCAG 1.4.12 requires that content not break when users override spacing to at least 0.12em letter-spacing and 0.16em word-spacing. This rule enforces author-side minimums as a best-practice heuristic, not a strict compliance check.
+[text-spacing]: https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html
+
+> **Note:** WCAG 1.4.12 requires that content not
+> break when users override spacing to at least
+> 0.12em letter-spacing and 0.16em word-spacing.
+> This rule enforces author-side minimums as a
+> best-practice heuristic, not a strict
+> compliance check.
 
 ---
 

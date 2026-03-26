@@ -44,7 +44,11 @@ a:focus {
 
 ## WCAG Reference
 
-[2.4.7 Focus Visible (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html) and [2.1.1 Keyboard (Level A)](https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html)
+[2.4.7 Focus Visible (Level AA)][focus-visible] and
+[2.1.1 Keyboard (Level A)][keyboard]
+
+[focus-visible]: https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html
+[keyboard]: https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html
 
 ---
 

@@ -1,6 +1,7 @@
 # media-prefers-contrast
 
-Require implementation of certain styles for selectors with colors in a `@media (prefers-contrast)` block.
+Require implementation of certain styles for selectors
+with colors in a `@media (prefers-contrast)` block.
 
 **Sources:**
 
@@ -45,7 +46,12 @@ The following patterns are _not_ considered violations:
 
 ## WCAG Reference
 
-[1.4.3 Contrast (Minimum) (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html) and [1.4.6 Contrast (Enhanced) (Level AAA)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-enhanced.html)
+[1.4.3 Contrast (Minimum) (Level AA)][contrast-min]
+and
+[1.4.6 Contrast (Enhanced) (Level AAA)][contrast-enh]
+
+[contrast-min]: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
+[contrast-enh]: https://www.w3.org/WAI/WCAG21/Understanding/contrast-enhanced.html
 
 ---
 
