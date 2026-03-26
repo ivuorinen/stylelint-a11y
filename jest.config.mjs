@@ -14,7 +14,7 @@ export default {
       statements: 75,
     },
   },
-  setupFiles: ['./jest.setup.js'],
+  setupFiles: ['./jest.setup.mjs'],
   testEnvironment: 'node',
   roots: ['src'],
   testRegex: '.*\\.test\\.js$|src/.*/__tests__/.*\\.js$',
