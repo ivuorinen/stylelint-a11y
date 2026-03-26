@@ -16,15 +16,13 @@ const targetProperties = ['transition', 'animation', 'animation-name'];
 /** Checks if children contain a matching reduced-motion override. */
 function checkChildrenNodes(childrenNodes, currentSelector, parentNode) {
   return childrenNodes.some((declaration) => {
-    const index = targetProperties.indexOf(declaration.prop);
-    if (index < 0) return false;
-    const matchedProp = targetProperties[index];
+    if (!targetProperties.includes(declaration.prop)) return false;
     if (parentNode.params.indexOf('prefers-reduced-motion') === -1) return false;
     if (declaration.value !== 'none') return false;
 
-    if (currentSelector === 'animation-name' && matchedProp === 'animation') return true;
+    if (currentSelector === 'animation-name' && declaration.prop === 'animation') return true;
 
-    return currentSelector === matchedProp;
+    return currentSelector === declaration.prop;
   });
 }
 
@@ -48,10 +46,8 @@ function check(selector, node) {
 
   const declarationsIsMatched = declarations.some((declaration) => {
     const noMatchedParams = !params || params.indexOf('prefers-reduced-motion') === -1;
-    const index = targetProperties.indexOf(declaration.prop);
-    if (index < 0) return false;
-    const matchedProp = targetProperties[index];
-    currentSelector = matchedProp;
+    if (!targetProperties.includes(declaration.prop)) return false;
+    currentSelector = declaration.prop;
     if (declaration.value === 'none') {
       return false;
     }
@@ -72,14 +68,12 @@ function check(selector, node) {
       ) {
         if (!Array.isArray(childrenNodes) || childrenNodes.length === 0) return false;
         return childrenNodes.some((declaration) => {
-          const index = targetProperties.indexOf(declaration.prop);
-          if (index < 0) return false;
-          const matchedProp = targetProperties[index];
+          if (!targetProperties.includes(declaration.prop)) return false;
           if (declaration.value !== 'none') return false;
 
-          if (currentSelector === 'animation-name' && matchedProp === 'animation') return true;
+          if (currentSelector === 'animation-name' && declaration.prop === 'animation') return true;
 
-          return currentSelector === matchedProp;
+          return currentSelector === declaration.prop;
         });
       }
 
