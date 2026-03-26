@@ -26,46 +26,39 @@ export default function createMediaQueryRule({
       return true;
     }
 
-    let currentSelector = null;
+    const isOutsideMediaFeature = !params || params.toLowerCase().indexOf(mediaFeature) === -1;
 
-    const declarationsIsMatched = declarations.some((declaration) => {
-      const noMatchedParams = !params || params.indexOf(mediaFeature) === -1;
-      const index = targetProperties.indexOf(declaration.prop);
-      currentSelector = targetProperties[index];
+    // Collect all target properties used outside the relevant media query
+    const matchedProperties = declarations
+      .filter(
+        (declaration) =>
+          declaration.type === 'decl' &&
+          targetProperties.includes(declaration.prop.toLowerCase()) &&
+          isOutsideMediaFeature
+      )
+      .map((declaration) => declaration.prop.toLowerCase());
 
-      return index >= 0 && noMatchedParams;
-    });
+    if (matchedProperties.length === 0) return true;
 
-    if (!declarationsIsMatched) return true;
+    // Check that every matched property has a counterpart inside the media query
+    const allCovered = matchedProperties.every((prop) => {
+      return parentNodes.some((parentNode) => {
+        if (!parentNode || !parentNode.nodes || !parentNode.params) return false;
+        if (parentNode.params.toLowerCase().indexOf(mediaFeature) === -1) return false;
 
-    if (declarationsIsMatched) {
-      const parentMatchedNode = parentNodes.some((parentNode) => {
-        if (!parentNode || !parentNode.nodes) return;
         return parentNode.nodes.some((childrenNode) => {
           const childrenNodes = childrenNode.nodes;
 
-          if (
-            !parentNode.params ||
-            !Array.isArray(childrenNodes) ||
-            selector !== childrenNode.selector
-          )
-            return false;
+          if (!Array.isArray(childrenNodes) || selector !== childrenNode.selector) return false;
 
-          const matchedChildrenNodes = childrenNodes.some((declaration) => {
-            const index = targetProperties.indexOf(declaration.prop);
-            if (currentSelector !== targetProperties[index]) return false;
-
-            return index >= 0 && parentNode.params.indexOf(mediaFeature) >= 0;
-          });
-
-          return matchedChildrenNodes;
+          return childrenNodes.some(
+            (declaration) => declaration.type === 'decl' && declaration.prop.toLowerCase() === prop
+          );
         });
       });
+    });
 
-      return parentMatchedNode;
-    }
-
-    return true;
+    return allCovered;
   }
 
   return function (actual) {
