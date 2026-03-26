@@ -13,6 +13,7 @@ export const messages = utils.ruleMessages(ruleName, {
 });
 const targetProperties = ['transition', 'animation', 'animation-name'];
 
+/** Checks if children contain a matching reduced-motion override. */
 function checkChildrenNodes(childrenNodes, currentSelector, parentNode) {
   return childrenNodes.some((declaration) => {
     const index = targetProperties.indexOf(declaration.prop);
@@ -25,6 +26,7 @@ function checkChildrenNodes(childrenNodes, currentSelector, parentNode) {
   });
 }
 
+/** Checks if animation/transition properties have prefers-reduced-motion counterparts. */
 function check(selector, node) {
   const declarations = node.nodes;
   const params = node.parent.params;

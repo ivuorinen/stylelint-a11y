@@ -11,9 +11,13 @@ export const messages = utils.ruleMessages(ruleName, {
 const DEFAULT_THRESHOLD_PX = 15;
 const DEFAULT_REM_PX = 16;
 
+/** Converts pixels to points. */
 const pxToPt = (v) => 0.75 * v;
+
+/** Converts pixels to rem (assuming 16px base). */
 const pxToRem = (v) => v / DEFAULT_REM_PX;
 
+/** Parses a minSize option string (px, pt, or rem) to pixels. */
 function parseThresholdPx(minSize) {
   if (!minSize) return DEFAULT_THRESHOLD_PX;
   const lower = minSize.toLowerCase();

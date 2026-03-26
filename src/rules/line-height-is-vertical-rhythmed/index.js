@@ -34,6 +34,7 @@ export default function (actual, options) {
     const minUnitless = options?.minUnitless ?? DEFAULT_MIN_UNITLESS;
     const gridPx = options?.gridPx ?? DEFAULT_GRID_PX;
 
+    /** Checks if a node's line-height follows the vertical rhythm grid. */
     function check(node) {
       if (node.type !== 'rule') {
         return true;

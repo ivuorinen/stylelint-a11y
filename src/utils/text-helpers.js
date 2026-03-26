@@ -1,3 +1,4 @@
+/** CSS properties that indicate text-related styling. */
 export const textStyles = [
   'text-decoration',
   'text-align',
@@ -12,6 +13,7 @@ export const textStyles = [
   'color',
 ];
 
+/** Returns true if any node has a text-related CSS property. */
 export const nodesProbablyForText = (nodes) =>
   nodes
     .map((node) => node.prop)

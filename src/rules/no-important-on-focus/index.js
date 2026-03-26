@@ -8,10 +8,11 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (prop, selector) => `Unexpected !important on "${prop}" in ${selector}`,
 });
 
+/** Returns true if the property is a focus indicator (outline, border, box-shadow). */
 const isFocusIndicatorProperty = (prop) =>
   prop === 'box-shadow' ||
   /^outline(?:-|$)/.test(prop) ||
-  /^border(?:-(top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?(?:-(color|style|width))?$/.test(
+  /^border(?:-(?:top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?(?:-(?:color|style|width))?$/.test(
     prop
   );
 

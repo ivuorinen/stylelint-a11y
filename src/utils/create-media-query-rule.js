@@ -5,6 +5,7 @@ import isStandardSyntaxSelector from 'stylelint/lib/utils/isStandardSyntaxSelect
 import isStandardSyntaxAtRule from 'stylelint/lib/utils/isStandardSyntaxAtRule.mjs';
 import isCustomSelector from 'stylelint/lib/utils/isCustomSelector.mjs';
 
+/** Creates a stylelint rule that checks for media query counterparts. */
 export default function createMediaQueryRule({
   mediaFeature,
   targetProperties,

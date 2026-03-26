@@ -12,6 +12,7 @@ const DEFAULT_MAX_DURATION_S = 5;
 
 const ignoredValues = ['none', 'inherit', 'initial', 'unset'];
 
+/** Parses a CSS duration string (e.g. '500ms', '2s') to seconds. */
 function parseDurationToSeconds(value) {
   if (value.endsWith('ms')) {
     return parseFloat(value) / 1000;
@@ -22,6 +23,7 @@ function parseDurationToSeconds(value) {
   return NaN;
 }
 
+/** Extracts the first time value from a shorthand animation/transition value. */
 function extractDurationFromShorthand(value) {
   const parts = value.split(/\s+/);
   for (const part of parts) {
