@@ -1,5 +1,7 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import { nodesProbablyForText } from '../../utils/text-helpers.js';
 
 export const ruleName = 'a11y/no-spread-text';
 
@@ -7,41 +9,47 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Unexpected max-width in ${selector}`,
 });
 
-const textStyles = [
-  'text-decoration',
-  'text-align',
-  'text-transform',
-  'text-indent',
-  'letter-spacing',
-  'line-height',
-  'direction',
-  'word-spacing',
-  'text-shadow',
-  'text-overflow',
-  'color',
-];
+const DEFAULT_MIN_WIDTH = 45;
+const DEFAULT_MAX_WIDTH = 80;
 
-const nodesProbablyForText = (nodes) =>
-  nodes
-    .map((node) => node.prop)
-    .filter(Boolean)
-    .map((prop) => prop.toLowerCase())
-    .some((prop) => textStyles.includes(prop));
-
-export default function (actual) {
+export default function (actual, options) {
   return (root, result) => {
-    const validOptions = utils.validateOptions(result, ruleName, { actual });
+    const validOptions = utils.validateOptions(
+      result,
+      ruleName,
+      { actual },
+      {
+        actual: options,
+        possible: {
+          minWidth: [(v) => typeof v === 'number'],
+          maxWidth: [(v) => typeof v === 'number'],
+        },
+        optional: true,
+      }
+    );
 
     if (!validOptions || !actual) {
       return;
     }
 
+    const minWidth = options?.minWidth ?? DEFAULT_MIN_WIDTH;
+    const maxWidth = options?.maxWidth ?? DEFAULT_MAX_WIDTH;
+
+    if (minWidth > maxWidth) {
+      utils.report({
+        message: `Invalid options: minWidth (${minWidth}) must not be greater than maxWidth (${maxWidth})`,
+        node: root,
+        ruleName,
+        result,
+      });
+      return;
+    }
+
     root.walkRules((rule) => {
-      let selector = null;
       if (!isStandardSyntaxRule(rule)) {
         return;
       }
-      selector = rule.selector;
+      const selector = rule.selector;
 
       if (!selector) {
         return;
@@ -54,13 +62,12 @@ export default function (actual) {
             o.type === 'decl' &&
             o.prop.toLowerCase() === 'max-width' &&
             o.value.toLowerCase().endsWith('ch') &&
-            (parseFloat(o.value) < 45 || parseFloat(o.value) > 80)
+            (parseFloat(o.value) < minWidth || parseFloat(o.value) > maxWidth)
           );
         });
 
       if (isRejected) {
         utils.report({
-          index: rule.lastEach,
           message: messages.expected(selector),
           node: rule,
           ruleName,

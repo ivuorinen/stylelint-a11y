@@ -1,5 +1,6 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 
 export const ruleName = 'a11y/content-property-no-static-value';
 
@@ -7,11 +8,13 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Unexpected using "content" property in ${selector}`,
 });
 
+/** Checks if content is only used in ::before/::after pseudo-elements. */
 const isContentPropertyUsedCorrectly = (selectors) =>
   selectors.every((selector) => {
     return /:before|:after/.test(selector);
   });
 
+/** Returns true if the node contains a content property declaration. */
 const checkNodesForContentProperty = (node) =>
   node.nodes.filter((node) => node.prop).some((node) => node.prop.toLowerCase() === 'content');
 
@@ -60,7 +63,6 @@ export default function (actual) {
 
       if (!isAccepted) {
         utils.report({
-          index: node.lastEach,
           message: messages.expected(selector),
           node,
           ruleName,

@@ -1,8 +1,9 @@
-module.exports = {
+/** @type {import('jest').Config} */
+export default {
   preset: 'jest-preset-stylelint',
   clearMocks: true,
   collectCoverage: false,
-  collectCoverageFrom: ['src/**/*.js'],
+  collectCoverageFrom: ['src/**/*.js', '!src/rules/index.js'],
   coverageDirectory: './.coverage/',
   coverageReporters: ['lcov', 'text'],
   coverageThreshold: {
@@ -13,7 +14,7 @@ module.exports = {
       statements: 75,
     },
   },
-  setupFiles: ['./jest.setup.js'],
+  setupFiles: ['./jest.setup.mjs'],
   testEnvironment: 'node',
   roots: ['src'],
   testRegex: '.*\\.test\\.js$|src/.*/__tests__/.*\\.js$',

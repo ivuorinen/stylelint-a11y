@@ -1,6 +1,8 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 
+/** Recursively flattens nested arrays into a single-level array. */
 const deepFlatten = (arr) => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
 export const ruleName = 'a11y/selector-pseudo-class-focus';
@@ -9,6 +11,7 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (value) => `Expected that ${value} is used together with :focus pseudo-class`,
 });
 
+/** Checks if the parent already contains a rule with the replaced selector. */
 function hasAlready(parent, repalcedSelector, selector) {
   const nodes = parent.nodes.map((i) => {
     if (i.type === 'rule') return i.selectors;
@@ -73,7 +76,6 @@ export default function (actual, _, context) {
 
       if (!isAccepted) {
         utils.report({
-          index: rule.lastEach,
           message: messages.expected(selector),
           node: rule,
           ruleName,

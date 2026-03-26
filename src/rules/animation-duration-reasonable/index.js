@@ -1,0 +1,117 @@
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+
+export const ruleName = 'a11y/animation-duration-reasonable';
+
+export const messages = utils.ruleMessages(ruleName, {
+  expected: (selector, threshold) => `Unexpected duration greater than ${threshold} in ${selector}`,
+});
+
+const DEFAULT_MAX_DURATION_S = 5;
+
+const ignoredValues = ['none', 'inherit', 'initial', 'unset'];
+
+/** Parses a CSS duration string (e.g. '500ms', '2s') to seconds. */
+function parseDurationToSeconds(value) {
+  if (value.endsWith('ms')) {
+    return parseFloat(value) / 1000;
+  }
+  if (value.endsWith('s')) {
+    return parseFloat(value);
+  }
+  return NaN;
+}
+
+/** Extracts the first time value from a shorthand animation/transition value. */
+function extractDurationFromShorthand(value) {
+  const parts = value.split(/\s+/);
+  for (const part of parts) {
+    if (/^[\d.]+m?s$/.test(part)) {
+      return parseDurationToSeconds(part);
+    }
+  }
+  return NaN;
+}
+
+export default function (actual, options) {
+  return (root, result) => {
+    const validOptions = utils.validateOptions(
+      result,
+      ruleName,
+      { actual },
+      {
+        actual: options,
+        possible: {
+          maxDuration: [(v) => typeof v === 'string' && !Number.isNaN(parseDurationToSeconds(v))],
+        },
+        optional: true,
+      }
+    );
+
+    if (!validOptions || !actual) {
+      return;
+    }
+
+    const maxDurationS = options?.maxDuration
+      ? parseDurationToSeconds(options.maxDuration)
+      : DEFAULT_MAX_DURATION_S;
+
+    root.walkRules((rule) => {
+      if (!isStandardSyntaxRule(rule)) {
+        return;
+      }
+      const selector = rule.selector;
+
+      if (!selector) {
+        return;
+      }
+
+      let hasViolation = false;
+
+      rule.nodes.forEach((decl) => {
+        if (decl.type !== 'decl' || hasViolation) return;
+
+        const prop = decl.prop.toLowerCase();
+        const value = decl.value.toLowerCase();
+
+        if (ignoredValues.includes(value)) return;
+
+        let duration = NaN;
+
+        if (prop === 'animation-duration' || prop === 'transition-duration') {
+          const segments = value.split(',');
+          for (const segment of segments) {
+            const d = parseDurationToSeconds(segment.trim());
+            if (!isNaN(d) && d > maxDurationS) {
+              duration = d;
+              break;
+            }
+          }
+        } else if (prop === 'animation' || prop === 'transition') {
+          const segments = value.split(',');
+          for (const segment of segments) {
+            const d = extractDurationFromShorthand(segment.trim());
+            if (!isNaN(d) && d > maxDurationS) {
+              duration = d;
+              break;
+            }
+          }
+        }
+
+        if (!isNaN(duration) && duration > maxDurationS) {
+          hasViolation = true;
+        }
+      });
+
+      if (hasViolation) {
+        utils.report({
+          message: messages.expected(selector, options?.maxDuration || '5s'),
+          node: rule,
+          ruleName,
+          result,
+        });
+      }
+    });
+  };
+}

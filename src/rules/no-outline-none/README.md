@@ -82,3 +82,11 @@ $primary-color: #333;
   }
 }
 ```
+
+## WCAG Reference
+
+[2.4.7 Focus Visible (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html)
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

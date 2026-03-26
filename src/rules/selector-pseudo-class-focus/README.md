@@ -41,3 +41,15 @@ a:hover {
 a:focus {
 }
 ```
+
+## WCAG Reference
+
+[2.4.7 Focus Visible (Level AA)][focus-visible] and
+[2.1.1 Keyboard (Level A)][keyboard]
+
+[focus-visible]: https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html
+[keyboard]: https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

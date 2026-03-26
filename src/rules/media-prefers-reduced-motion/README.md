@@ -58,3 +58,11 @@ div {
   }
 }
 ```
+
+## WCAG Reference
+
+[2.3.3 Animation from Interactions (Level AAA)](https://www.w3.org/WAI/WCAG21/Understanding/animation-from-interactions.html)
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

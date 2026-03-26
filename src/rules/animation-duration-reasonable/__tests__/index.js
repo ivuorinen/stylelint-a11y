@@ -1,0 +1,116 @@
+import { messages, ruleName } from '../index.js';
+
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.foo { transition: all 0.3s ease; }',
+    },
+    {
+      code: '.foo { animation-duration: 2s; }',
+    },
+    {
+      code: '.foo { transition-duration: 500ms; }',
+    },
+    {
+      code: '.foo { animation-duration: 5s; }',
+    },
+    {
+      code: '.foo { animation: spin 3s linear infinite; }',
+    },
+    {
+      code: '.foo { transition: none; }',
+    },
+    {
+      code: '.foo { display: flex; }',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.foo { animation-duration: 10s; }',
+      message: messages.expected('.foo', '5s'),
+      line: 1,
+    },
+    {
+      code: '.foo { transition-duration: 6000ms; }',
+      message: messages.expected('.foo', '5s'),
+      line: 1,
+    },
+    {
+      code: '.foo { transition: opacity 6s linear; }',
+      message: messages.expected('.foo', '5s'),
+      line: 1,
+    },
+    {
+      code: '.foo { animation: spin 10s linear infinite; }',
+      message: messages.expected('.foo', '5s'),
+      line: 1,
+    },
+  ],
+});
+
+testRule({
+  ruleName,
+  config: [true, { maxDuration: '3s' }],
+
+  accept: [
+    {
+      code: '.foo { animation-duration: 3s; }',
+    },
+    {
+      code: '.foo { transition-duration: 2s; }',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.foo { animation-duration: 4s; }',
+      message: messages.expected('.foo', '3s'),
+      line: 1,
+    },
+    {
+      code: '.foo { transition-duration: 3500ms; }',
+      message: messages.expected('.foo', '3s'),
+      line: 1,
+    },
+  ],
+});
+
+// config: [false] triggers the !actual guard
+testRule({
+  ruleName,
+  config: [false],
+
+  reject: [
+    {
+      code: '.foo { animation-duration: 999s; }',
+      message:
+        'Invalid option value "false" for rule "a11y/animation-duration-reasonable".' +
+        ' Are you trying to disable this rule? If so use "null" instead',
+    },
+  ],
+});
+
+// Edge cases: non-standard syntax, unitless values, missing time values
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '%placeholder { animation-duration: 999s; }',
+      description: 'skips SCSS placeholder selectors',
+    },
+    {
+      code: '.foo { animation-duration: 100; }',
+      description: 'unitless duration value returns NaN and is ignored',
+    },
+    {
+      code: '.foo { animation: spin linear infinite; }',
+      description: 'shorthand with no time value returns NaN',
+    },
+  ],
+});

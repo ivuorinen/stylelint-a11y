@@ -8,30 +8,37 @@
 npm i --dev stylelint @ivuorinen/stylelint-a11y
 ```
 
+```bash
+yarn add -D stylelint @ivuorinen/stylelint-a11y
+```
+
 Create the `.stylelintrc.json` config file (or open the existing one), add `stylelint-a11y` to the plugins array and the rules you need to the rules list. All rules from stylelint-a11y need to be namespaced with `a11y`.
 
 Please refer to [stylelint docs][stylelint-guide] for the detailed info on using this linter.
 
 ## Rules
 
-- ⭐️ - the mark of recommended rules.
-- ✒️ - the mark of fixable rules.
+- `x` - the mark of recommended rules.
+- `-` - the mark of fixable rules.
 
-| ⭐ | ️✒️ | Rule ID                                                                   | Description                                                            |
-|:-:|:-:| :------------------------------------------------------------------------ | :---------------------------------------------------------------------- |
-|   |   | [content-property-no-static-value][rule-content-property-no-static-value] | Disallow unaccessible CSS generated content in pseudo-elements          |
-|   |   | [font-size-is-readable][rule-font-size-is-readable]                       | Disallow font sizes less than `15px`                                    |
-|   |   | [line-height-is-vertical-rhythmed][rule-line-height-is-vert-rhymed]       | Disallow not vertical rhythmed `line-height`                            |
-| x️ | x | [media-prefers-reduced-motion][rule-media-prefers-reduced-motion]         | Require certain styles if the animation or transition in media features |
-|   |   | [media-prefers-color-scheme][rule-media-prefers-color-scheme]             | Require implementation of certain styles for selectors with colors.     |
-|   |   | [no-display-none][rule-no-display-none]                                   | Disallow content hiding with `display: none` property                   |
-|   |   | [no-obsolete-attribute][rule-no-obsolete-attribute]                       | Disallow obsolete attribute using                                       |
-|   |   | [no-obsolete-element][rule-no-obsolete-element]                           | Disallow obsolete selectors using                                       |
-|   |   | [no-spread-text][rule-no-spread-text]                                     | Require width of text in a comfortable range                            |
-| x |   | [no-outline-none][rule-no-outline-none]                                   | Disallow outline clearing                                               |
-|   |   | [no-text-align-justify][rule-no-text-align-justify]                       | Disallow content with `text-align: justify`                             |
-| x | x | [selector-pseudo-class-focus][rule-selector-pseudo-class-focus]           | Require or disallow a pseudo-element to the selectors with `:hover`     |
-
+| `x` | ️`-` | Rule ID                                                                   | Description                                                             |
+| :-: | :-: | :------------------------------------------------------------------------ | :---------------------------------------------------------------------- |
+|     |     | [content-property-no-static-value][rule-content-property-no-static-value] | Disallow unaccessible CSS generated content in pseudo-elements          |
+|     |     | [font-size-is-readable][rule-font-size-is-readable]                       | Disallow font sizes less than `15px`                                    |
+|     |     | [line-height-is-vertical-rhythmed][rule-line-height-is-vert-rhymed]       | Disallow not vertical rhythmed `line-height`                            |
+| `x️` | `-` | [media-prefers-reduced-motion][rule-media-prefers-reduced-motion]         | Require certain styles if the animation or transition in media features |
+|     |     | [media-prefers-color-scheme][rule-media-prefers-color-scheme]             | Require implementation of certain styles for selectors with colors.     |
+|     |     | [no-display-none][rule-no-display-none]                                   | Disallow content hiding with `display: none` property                   |
+|     |     | [no-obsolete-attribute][rule-no-obsolete-attribute]                       | Disallow obsolete attribute using                                       |
+|     |     | [no-obsolete-element][rule-no-obsolete-element]                           | Disallow obsolete selectors using                                       |
+|     |     | [no-spread-text][rule-no-spread-text]                                     | Require width of text in a comfortable range                            |
+| `x` |     | [no-outline-none][rule-no-outline-none]                                   | Disallow outline clearing                                               |
+|     |     | [no-text-align-justify][rule-no-text-align-justify]                       | Disallow content with `text-align: justify`                             |
+| `x` | `-` | [selector-pseudo-class-focus][rule-selector-pseudo-class-focus]           | Require or disallow a pseudo-element to the selectors with `:hover`     |
+|     |     | [animation-duration-reasonable][rule-animation-duration-reasonable]       | Disallow animations with duration greater than 5 seconds                |
+|     |     | [media-prefers-contrast][rule-media-prefers-contrast]                     | Require styles for selectors with colors in `@media (prefers-contrast)` |
+|     |     | [no-important-on-focus][rule-no-important-on-focus]                       | Disallow `!important` on focus indicator properties                     |
+|     | `-` | [text-spacing-is-readable][rule-text-spacing-is-readable]                 | Require readable letter-spacing and word-spacing                        |
 
 ## Recommended config
 
@@ -75,7 +82,6 @@ There is also [stackoverflow][so-stylelint], which would be the preferred QA for
 
 [repo-issues]: https://github.com/ivuorinen/stylelint-a11y/issues
 [repo-pr]: https://github.com/ivuorinen/stylelint-a11y/pulls
-
 [rule-content-property-no-static-value]: ./src/rules/content-property-no-static-value/README.md
 [rule-font-size-is-readable]: ./src/rules/font-size-is-readable/README.md
 [rule-line-height-is-vert-rhymed]: ./src/rules/line-height-is-vertical-rhythmed/README.md
@@ -88,8 +94,10 @@ There is also [stackoverflow][so-stylelint], which would be the preferred QA for
 [rule-no-outline-none]: ./src/rules/no-outline-none/README.md
 [rule-no-text-align-justify]: ./src/rules/no-text-align-justify/README.md
 [rule-selector-pseudo-class-focus]: ./src/rules/selector-pseudo-class-focus/README.md
-
+[rule-animation-duration-reasonable]: ./src/rules/animation-duration-reasonable/README.md
+[rule-media-prefers-contrast]: ./src/rules/media-prefers-contrast/README.md
+[rule-no-important-on-focus]: ./src/rules/no-important-on-focus/README.md
+[rule-text-spacing-is-readable]: ./src/rules/text-spacing-is-readable/README.md
 [stylelint-guide]: https://stylelint.io/user-guide/
 [stylelint-dev-rules]: https://github.com/stylelint/stylelint/blob/master/docs/developer-guide/rules.md
-
 [so-stylelint]: https://stackoverflow.com/questions/tagged/stylelint

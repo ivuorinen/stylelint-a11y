@@ -1,5 +1,6 @@
-import { utils } from 'stylelint';
-import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule';
+import stylelint from 'stylelint';
+const { utils } = stylelint;
+import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 
 export const ruleName = 'a11y/no-display-none';
 
@@ -46,7 +47,6 @@ export default function (actual) {
 
       if (!isAccepted) {
         utils.report({
-          index: node.lastEach,
           message: messages.expected(selector),
           node,
           ruleName,

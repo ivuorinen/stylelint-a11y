@@ -32,3 +32,11 @@ The following patterns are _not_ considered violations:
   content: attr(aria-label);
 }
 ```
+
+## WCAG Reference
+
+[1.1.1 Non-text Content (Level A)](https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html)
+
+---
+
+See all rules in the [main README](../../../README.md#rules).

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   plugins: ['.'],
   rules: {
     'a11y/media-prefers-reduced-motion': true,

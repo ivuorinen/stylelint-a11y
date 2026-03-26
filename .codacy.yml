@@ -1,0 +1,4 @@
+exclude_paths:
+  - CLAUDE.md
+  - docs/**
+  - '**/__tests__/**'

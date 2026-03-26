@@ -48,3 +48,23 @@ The following patterns are _not_ considered violations:
   max-width: 100px;
 }
 ```
+
+### `minWidth` (default: `45`)
+
+Set a custom minimum text width in `ch` units.
+
+### `maxWidth` (default: `80`)
+
+Set a custom maximum text width in `ch` units.
+
+```json
+{ "a11y/no-spread-text": [true, { "minWidth": 50, "maxWidth": 70 }] }
+```
+
+## WCAG Reference
+
+[1.4.8 Visual Presentation (Level AAA)](https://www.w3.org/WAI/WCAG21/Understanding/visual-presentation.html)
+
+---
+
+See all rules in the [main README](../../../README.md#rules).
