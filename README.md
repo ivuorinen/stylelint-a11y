@@ -5,14 +5,23 @@
 ## Installation and usage
 
 ```bash
-npm i --dev stylelint @ivuorinen/stylelint-a11y
+npm i -D stylelint @ivuorinen/stylelint-a11y
 ```
 
 ```bash
 yarn add -D stylelint @ivuorinen/stylelint-a11y
 ```
 
-Create the `.stylelintrc.json` config file (or open the existing one), add `stylelint-a11y` to the plugins array and the rules you need to the rules list. All rules from stylelint-a11y need to be namespaced with `a11y`.
+Create the `.stylelintrc.json` config file (or open the existing one), add `@ivuorinen/stylelint-a11y` to the plugins array and the rules you need to the rules list. All rules from this plugin need to be namespaced with `a11y`.
+
+```json
+{
+  "plugins": ["@ivuorinen/stylelint-a11y"],
+  "rules": {
+    "a11y/no-outline-none": true
+  }
+}
+```
 
 Please refer to [stylelint docs][stylelint-guide] for the detailed info on using this linter.
 
@@ -24,44 +33,39 @@ Please refer to [stylelint docs][stylelint-guide] for the detailed info on using
 | `x` | ️`-` | Rule ID                                                                   | Description                                                             |
 | :-: | :-: | :------------------------------------------------------------------------ | :---------------------------------------------------------------------- |
 |     |     | [content-property-no-static-value][rule-content-property-no-static-value] | Disallow unaccessible CSS generated content in pseudo-elements          |
-|     |     | [font-size-is-readable][rule-font-size-is-readable]                       | Disallow font sizes less than `15px`                                    |
-|     |     | [line-height-is-vertical-rhythmed][rule-line-height-is-vert-rhymed]       | Disallow not vertical rhythmed `line-height`                            |
+|     | `-` | [font-size-is-readable][rule-font-size-is-readable]                       | Disallow font sizes less than `15px`                                    |
+|     | `-` | [line-height-is-vertical-rhythmed][rule-line-height-is-vert-rhymed]       | Disallow not vertical rhythmed `line-height`                            |
 | `x️` | `-` | [media-prefers-reduced-motion][rule-media-prefers-reduced-motion]         | Require certain styles if the animation or transition in media features |
 |     |     | [media-prefers-color-scheme][rule-media-prefers-color-scheme]             | Require implementation of certain styles for selectors with colors.     |
 |     |     | [no-display-none][rule-no-display-none]                                   | Disallow content hiding with `display: none` property                   |
 |     |     | [no-obsolete-attribute][rule-no-obsolete-attribute]                       | Disallow obsolete attribute using                                       |
 |     |     | [no-obsolete-element][rule-no-obsolete-element]                           | Disallow obsolete selectors using                                       |
-|     |     | [no-spread-text][rule-no-spread-text]                                     | Require width of text in a comfortable range                            |
-| `x` |     | [no-outline-none][rule-no-outline-none]                                   | Disallow outline clearing                                               |
-|     |     | [no-text-align-justify][rule-no-text-align-justify]                       | Disallow content with `text-align: justify`                             |
+|     | `-` | [no-spread-text][rule-no-spread-text]                                     | Require width of text in a comfortable range                            |
+| `x` | `-` | [no-outline-none][rule-no-outline-none]                                   | Disallow outline clearing                                               |
+|     | `-` | [no-text-align-justify][rule-no-text-align-justify]                       | Disallow content with `text-align: justify`                             |
 | `x` | `-` | [selector-pseudo-class-focus][rule-selector-pseudo-class-focus]           | Require or disallow a pseudo-element to the selectors with `:hover`     |
-|     |     | [animation-duration-reasonable][rule-animation-duration-reasonable]       | Disallow animations with duration greater than 5 seconds                |
+|     | `-` | [animation-duration-reasonable][rule-animation-duration-reasonable]       | Disallow animations with duration greater than 5 seconds                |
 |     |     | [media-prefers-contrast][rule-media-prefers-contrast]                     | Require styles for selectors with colors in `@media (prefers-contrast)` |
-|     |     | [no-important-on-focus][rule-no-important-on-focus]                       | Disallow `!important` on focus indicator properties                     |
+|     | `-` | [no-important-on-focus][rule-no-important-on-focus]                       | Disallow `!important` on focus indicator properties                     |
 |     | `-` | [text-spacing-is-readable][rule-text-spacing-is-readable]                 | Require readable letter-spacing and word-spacing                        |
 
 ## Recommended config
 
-Add recommended configuration by simply adding the following to `extends` in your stylelint configuration:
+Add recommended configuration by adding the following to `extends` in your stylelint configuration:
 
-```
-stylelint-a11y/recommended
+```text
+@ivuorinen/stylelint-a11y/recommended
 ```
 
-This shareable config contains the following:
+The shareable config lives in [`recommended.js`](./recommended.js) and turns on
+the three rules marked `x` in the table above. It registers the plugin itself,
+so you do not have to add this package to `plugins` when extending it:
 
 ```json
 {
-  "plugins": ["stylelint-a11y"],
-  "rules": {
-    "a11y/media-prefers-reduced-motion": true,
-    "a11y/no-outline-none": true,
-    "a11y/selector-pseudo-class-focus": true
-  }
+  "extends": "@ivuorinen/stylelint-a11y/recommended"
 }
 ```
-
-Since it adds stylelint-a11y to `plugins`, you don't have to do this yourself when extending this config.
 
 ## Help out
 

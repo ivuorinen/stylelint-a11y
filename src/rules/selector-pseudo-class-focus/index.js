@@ -1,9 +1,7 @@
 import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
-
-/** Recursively flattens nested arrays into a single-level array. */
-const deepFlatten = (arr) => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
+import { someSelectorNode } from '../../utils/selectors.js';
 
 export const ruleName = 'a11y/selector-pseudo-class-focus';
 
@@ -11,26 +9,36 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (value) => `Expected that ${value} is used together with :focus pseudo-class`,
 });
 
-/** Checks if the parent already contains a rule with the replaced selector. */
-function hasAlready(parent, repalcedSelector, selector) {
-  const nodes = parent.nodes.map((i) => {
-    if (i.type === 'rule') return i.selectors;
-  });
-  const hoveredSelector = selector
-    .split(',')
-    .filter((o) => o.match(/:hover/gi))
-    .map((o) => o.trim());
-  const returned = hoveredSelector.some((o) => {
-    return deepFlatten(nodes).indexOf(o.replace(/:hover/gi, ':focus')) >= 0;
-  });
-  if (returned) return true;
+/**
+ * True if the selector hovers the element it selects, rather than merely
+ * mentioning `:hover` inside a functional pseudo-class argument.
+ *
+ * `:not(:hover)` selects the *absence* of hover and `:has(:hover)` selects an
+ * ancestor of a hovered element; neither has a `:focus` counterpart to
+ * require, and rewriting the `:hover` inside them inverts what the selector
+ * matches. Only a top-level `:hover` is the subject of this rule.
+ */
+const hasSubjectHover = (selector) =>
+  someSelectorNode(selector, (node) => {
+    if (node.type !== 'pseudo' || node.value.toLowerCase() !== ':hover') return false;
 
-  return parent.nodes.some((i) => {
-    return i.type === 'rule' && i.selectors.indexOf(repalcedSelector) !== -1;
-  });
-}
+    // Anything nested inside a functional pseudo-class (`:not(...)`,
+    // `:is(...)`, `:has(...)`) is an argument, not the subject.
+    for (let parent = node.parent; parent; parent = parent.parent) {
+      if (parent.type === 'pseudo') return false;
+    }
 
-export default function (actual, _, context) {
+    return true;
+  });
+
+/** The `:focus` counterpart of a `:hover` selector. */
+const toFocus = (selector) => selector.replace(/:hover/gi, ':focus').trim();
+
+/** Every selector declared by rules under `parent`. */
+const declaredSelectors = (parent) =>
+  parent.nodes.filter((node) => node.type === 'rule').flatMap((node) => node.selectors);
+
+export default function (actual) {
   return (root, result) => {
     const validOptions = utils.validateOptions(result, ruleName, { actual });
 
@@ -38,50 +46,63 @@ export default function (actual, _, context) {
       return;
     }
 
+    // The declared-selector set depends only on the parent, so building it once
+    // per parent keeps the walk linear. Rebuilding it per rule made the check
+    // quadratic: 8.5s on a 4000-rule stylesheet. Scoped to this run, so nothing
+    // leaks between lint invocations.
+    const cache = new WeakMap();
+    const declaredFor = (parent) => {
+      let declared = cache.get(parent);
+
+      if (!declared) {
+        declared = new Set(declaredSelectors(parent));
+        cache.set(parent, declared);
+      }
+
+      return declared;
+    };
+
     root.walkRules((rule) => {
-      let selector = null;
-
-      if (!isStandardSyntaxRule(rule)) {
+      if (!isStandardSyntaxRule(rule) || !rule.selector) {
         return;
       }
 
-      selector = rule.selector;
-
-      if (!selector) {
+      if (rule.selector.indexOf(':') === -1) {
         return;
       }
 
-      if (selector.indexOf(':') === -1) {
+      // Compared per selector, not over the joined string: an unrelated
+      // `:focus` elsewhere in the list must not satisfy this `:hover`.
+      const hovered = rule.selectors.filter(
+        (selector) => hasSubjectHover(selector) && !/:focus/i.test(selector)
+      );
+
+      if (hovered.length === 0) {
         return;
       }
 
-      if (selector.indexOf(':hover') === -1) {
+      const declared = declaredFor(rule.parent);
+      const uncovered = hovered.filter((selector) => !declared.has(toFocus(selector)));
+
+      if (uncovered.length === 0) {
         return;
       }
 
-      if (selector.indexOf(':hover') >= 0 && selector.indexOf(':focus') >= 0) {
-        return;
-      }
+      utils.report({
+        message: messages.expected(rule.selector),
+        node: rule,
+        ruleName,
+        result,
+        fix: () => {
+          const focused = uncovered.map(toFocus);
 
-      const isAccepted = hasAlready(rule.parent, selector.replace(/:hover/g, ':focus'), selector);
+          rule.selector = [rule.selector, ...focused].join(', ');
 
-      if (context.fix && !isAccepted) {
-        rule.parent.nodes.forEach((node) => {
-          if (node.type === 'rule' && node.selector === selector) {
-            node.selector = `${node.selector}, ${node.selector.replace(/:hover/g, ':focus')}`;
-          }
-        });
-        return;
-      }
-
-      if (!isAccepted) {
-        utils.report({
-          message: messages.expected(selector),
-          node: rule,
-          ruleName,
-          result,
-        });
-      }
+          // The cached set is now stale: later rules in the same parent must
+          // see the selectors this fix just declared.
+          for (const selector of focused) declared.add(selector);
+        },
+      });
     });
   };
 }

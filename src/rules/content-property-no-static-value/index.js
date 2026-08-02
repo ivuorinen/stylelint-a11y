@@ -1,6 +1,7 @@
 import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import { effectiveDeclaration, someContext } from '../../utils/declarations.js';
 
 export const ruleName = 'a11y/content-property-no-static-value';
 
@@ -8,31 +9,40 @@ export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Unexpected using "content" property in ${selector}`,
 });
 
-/** Checks if content is only used in ::before/::after pseudo-elements. */
-const isContentPropertyUsedCorrectly = (selectors) =>
-  selectors.every((selector) => {
-    return /:before|:after/.test(selector);
-  });
+/**
+ * Both anchored on the colon, so an `after` or `marker` appearing inside a
+ * class name or attribute value is not mistaken for the pseudo-element.
+ */
+const BEFORE_OR_AFTER = /::?(?:before|after)\b/i;
+const MARKER = /::?marker\b/i;
 
-/** Returns true if the node contains a content property declaration. */
-const checkNodesForContentProperty = (node) =>
-  node.nodes.filter((node) => node.prop).some((node) => node.prop.toLowerCase() === 'content');
+/**
+ * Content values that add nothing to the accessibility tree. The empty strings
+ * are decorative-only content; `none` and `normal` are the standard ways to
+ * cancel a pseudo-element, so neither injects text a screen reader would read.
+ */
+const acceptedValues = new Set(["''", '""', 'attr(aria-label)', 'none', 'normal']);
 
-function check(node) {
-  if (node.type !== 'rule' || !checkNodesForContentProperty(node) || !node.first) {
-    return true;
+function declaresStaticContent(context, selectors) {
+  // Only the last `content` declaration applies. Judging every one let a
+  // decorative `content: ''` mask the `content: "Price: $50"` that overrode it.
+  const declaration = effectiveDeclaration(context, (prop) => prop === 'content');
+
+  if (!declaration) {
+    return false;
   }
 
-  return node.nodes.some((o) => {
-    return (
-      o.type === 'decl' &&
-      o.prop.toLowerCase() === 'content' &&
-      isContentPropertyUsedCorrectly(o.parent.selectors) &&
-      (o.value.toLowerCase() === "''" ||
-        o.value.toLowerCase() === '""' ||
-        o.value.toLowerCase() === 'attr(aria-label)')
-    );
-  });
+  // `::marker` content is the list bullet whatever its value: presentational,
+  // and the list semantics a screen reader announces come from the list
+  // element itself, not from the marker.
+  if (selectors.every((selector) => MARKER.test(selector))) {
+    return false;
+  }
+
+  return !(
+    selectors.every((selector) => BEFORE_OR_AFTER.test(selector)) &&
+    acceptedValues.has(declaration.value.toLowerCase().trim())
+  );
 }
 
 export default function (actual) {
@@ -43,28 +53,15 @@ export default function (actual) {
       return;
     }
 
-    root.walk((node) => {
-      let selector = null;
-
-      if (node.type === 'rule') {
-        if (!isStandardSyntaxRule(node)) {
-          return;
-        }
-        selector = node.selector;
-      } else if (node.type === 'atrule' && node.name.toLowerCase() === 'page' && node.params) {
-        selector = node.params;
-      }
-
-      if (!selector) {
+    root.walkRules((rule) => {
+      if (!isStandardSyntaxRule(rule) || !rule.selector) {
         return;
       }
 
-      const isAccepted = check(node);
-
-      if (!isAccepted) {
+      if (someContext(rule, (context) => declaresStaticContent(context, rule.selectors))) {
         utils.report({
-          message: messages.expected(selector),
-          node,
+          message: messages.expected(rule.selector),
+          node: rule,
           ruleName,
           result,
         });

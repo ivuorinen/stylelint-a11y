@@ -34,7 +34,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 35)
+// Non-standard syntax rule skipped
 testRule({
   ruleName,
   config: [true],
@@ -47,7 +47,7 @@ testRule({
   ],
 });
 
-// @page atrule with params (line 39)
+// At-rules are not walked by this rule
 testRule({
   ruleName,
   config: [true],
@@ -55,12 +55,12 @@ testRule({
   accept: [
     {
       code: '@page :first { margin: 1cm; }',
-      description: '@page atrule with params is walked (no display: none)',
+      description: 'an at-rule is not walked by this rule',
     },
   ],
 });
 
-// Non-rule node type returns true from check (line 13)
+// Rules nested in a media query are reached like any other rule
 testRule({
   ruleName,
   config: [true],
@@ -68,7 +68,95 @@ testRule({
   accept: [
     {
       code: '@media screen { .foo { display: flex; } }',
-      description: 'non-rule node type returns true from check',
+      description: 'a rule nested in a media query is still checked',
+    },
+  ],
+});
+
+// Hiding content for print carries none of the cost this rule prevents.
+// See finding audit-cca38725.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '@media print { .nav { display: none; } }',
+      description: 'a print-only stylesheet may hide content',
+    },
+    {
+      code: '@media only print { .nav { display: none; } }',
+      description: 'only print is still print-only',
+    },
+  ],
+
+  reject: [
+    {
+      code: '@media screen, print { .nav { display: none; } }',
+      message: messages.expected('.nav'),
+      description: 'a query that also affects screen output is not exempt',
+    },
+    {
+      code: '@media screen { .nav { display: none; } }',
+      message: messages.expected('.nav'),
+      description: 'screen-only is not exempt',
+    },
+  ],
+});
+
+// Last declaration wins. See finding audit-82a06e54.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.a { display: none; display: block; }',
+      description: 'an overridden display: none hides nothing',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.a { display: block; display: none; }',
+      message: messages.expected('.a'),
+      description: 'the last declaration is the one judged',
+    },
+    {
+      code: '.a { display: none !important; display: block; }',
+      message: messages.expected('.a'),
+      description: '!important beats a later plain declaration',
+    },
+  ],
+});
+
+// A nested at-rule is its own declaration context, and the print exemption
+// applies per context. See finding audit-4037f66d.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.a { color: red; @media print { display: none; } }',
+      description: 'a nested print-only block may hide content',
+    },
+    {
+      code: '.a { display: block; @media print { display: none; } }',
+      description: 'hidden only for print is still exempt',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.a { color: red; @media screen { display: none; } }',
+      message: messages.expected('.a'),
+      description: 'a declaration inside a nested at-rule is checked',
+    },
+    {
+      code: '.a { display: none; @media print { display: block; } }',
+      message: messages.expected('.a'),
+      description: 'the outer context still hides content outside print',
     },
   ],
 });

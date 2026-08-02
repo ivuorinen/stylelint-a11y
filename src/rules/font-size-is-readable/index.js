@@ -1,6 +1,8 @@
 import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import { declarationContexts, effectiveDeclaration } from '../../utils/declarations.js';
+import { ROOT_FONT_SIZE_PX, formatNumber } from '../../utils/lengths.js';
 
 export const ruleName = 'a11y/font-size-is-readable';
 
@@ -9,13 +11,42 @@ export const messages = utils.ruleMessages(ruleName, {
 });
 
 const DEFAULT_THRESHOLD_PX = 15;
-const DEFAULT_REM_PX = 16;
 
 /** Converts pixels to points. */
 const pxToPt = (v) => 0.75 * v;
 
-/** Converts pixels to rem (assuming 16px base). */
-const pxToRem = (v) => v / DEFAULT_REM_PX;
+/** Converts pixels to rem (assuming a 16px base). */
+const pxToRem = (v) => v / ROOT_FONT_SIZE_PX;
+
+/** The unit a size was written in; `px` unless it says otherwise. */
+const unitOf = (size) => {
+  const lower = size.toLowerCase();
+
+  if (lower.endsWith('rem')) return 'rem';
+  if (lower.endsWith('pt')) return 'pt';
+
+  return 'px';
+};
+
+/**
+ * Matches the font-size component of the `font` shorthand — the length that
+ * precedes the optional `/line-height` and the mandatory font family.
+ */
+const FONT_SHORTHAND_SIZE = /(?:^|\s)((?:\d*\.)?\d+(?:px|pt|rem))(?=[\s/]|$)/i;
+
+/**
+ * The font size a declaration sets, or `null` when it sets none. The caller
+ * passes only `font-size` or the `font` shorthand, so anything that is not
+ * `font-size` is the shorthand. `em` and `%` are deliberately excluded: they
+ * resolve against an inherited size this rule cannot know.
+ */
+function declaredFontSize(decl) {
+  if (decl.prop.toLowerCase() === 'font-size') return decl.value;
+
+  const match = decl.value.match(FONT_SHORTHAND_SIZE);
+
+  return match ? match[1] : null;
+}
 
 /** Parses a minSize option string (px, pt, or rem) to pixels. */
 function parseThresholdPx(minSize) {
@@ -25,7 +56,7 @@ function parseThresholdPx(minSize) {
     return parseFloat(minSize) / 0.75;
   }
   if (lower.endsWith('rem')) {
-    return parseFloat(minSize) * DEFAULT_REM_PX;
+    return parseFloat(minSize) * ROOT_FONT_SIZE_PX;
   }
   return parseFloat(minSize);
 }
@@ -43,9 +74,11 @@ export default function (actual, options) {
             (v) => {
               if (typeof v !== 'string') return false;
               const lower = v.toLowerCase();
+              // Positive, not merely finite: a negative threshold is below
+              // every declared size and silently disables the rule.
               return (
                 (lower.endsWith('px') || lower.endsWith('pt') || lower.endsWith('rem')) &&
-                Number.isFinite(parseFloat(v))
+                parseFloat(v) > 0
               );
             },
           ],
@@ -67,6 +100,14 @@ export default function (actual, options) {
     const checkInRem = (value) =>
       value.toLowerCase().endsWith('rem') && parseFloat(value) < pxToRem(thresholdPx);
 
+    /** The threshold rendered in `unit`, ready to substitute into a value. */
+    const thresholdIn = (unit) => {
+      if (unit === 'pt') return `${formatNumber(pxToPt(thresholdPx))}pt`;
+      if (unit === 'rem') return `${formatNumber(pxToRem(thresholdPx))}rem`;
+
+      return `${formatNumber(thresholdPx)}px`;
+    };
+
     root.walkRules((rule) => {
       if (!isStandardSyntaxRule(rule)) {
         return;
@@ -77,20 +118,37 @@ export default function (actual, options) {
         return;
       }
 
-      const isRejected = rule.nodes.some((o) => {
-        return (
-          o.type === 'decl' &&
-          o.prop.toLowerCase() === 'font-size' &&
-          (checkInPx(o.value) || checkInPt(o.value) || checkInRem(o.value))
+      // The last declaration across `font` and `font-size` is the one that
+      // applies, so an earlier fallback size is not judged.
+      const tooSmall = [...declarationContexts(rule)]
+        .map((context) =>
+          effectiveDeclaration(context, (prop) => prop === 'font' || prop === 'font-size')
+        )
+        .map((declaration) => ({ declaration, size: declaration && declaredFontSize(declaration) }))
+        .filter(
+          ({ size }) => size != null && (checkInPx(size) || checkInPt(size) || checkInRem(size))
         );
-      });
 
-      if (isRejected) {
+      if (tooSmall.length > 0) {
         utils.report({
           message: messages.expected(selector),
           node: rule,
           ruleName,
           result,
+          // Raised to the threshold in the unit the author wrote, so the fix
+          // reads as a corrected version of their declaration rather than a
+          // unit change. Only the size component of the `font` shorthand is
+          // touched; family, weight and line-height are left alone.
+          fix: () => {
+            for (const { declaration, size } of tooSmall) {
+              const replacement = thresholdIn(unitOf(size));
+
+              declaration.value =
+                declaration.prop.toLowerCase() === 'font-size'
+                  ? replacement
+                  : declaration.value.replace(size, replacement);
+            }
+          },
         });
       }
     });

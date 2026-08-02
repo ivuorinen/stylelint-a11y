@@ -54,7 +54,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 37)
+// Non-standard syntax rule skipped
 testRule({
   ruleName,
   config: [true],
@@ -67,7 +67,7 @@ testRule({
   ],
 });
 
-// @page atrule with params (line 41)
+// At-rules are not walked by this rule
 testRule({
   ruleName,
   config: [true],
@@ -75,12 +75,12 @@ testRule({
   accept: [
     {
       code: '@page :first { margin: 1cm; }',
-      description: '@page atrule with params is walked (no text-align issue)',
+      description: 'an at-rule is not walked by this rule',
     },
   ],
 });
 
-// Non-rule node type returns true from check (line 13)
+// Rules nested in a media query are reached like any other rule
 testRule({
   ruleName,
   config: [true],
@@ -88,7 +88,65 @@ testRule({
   accept: [
     {
       code: '@media screen { .foo { text-align: center; } }',
-      description: 'non-rule node type returns true from check',
+      description: 'a rule nested in a media query is still checked',
+    },
+  ],
+});
+
+// Last declaration wins. See finding audit-82a06e54.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.a { text-align: justify; text-align: left; }',
+      description: 'an overridden justify does not apply',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.a { text-align: left; text-align: justify; }',
+      message: messages.expected('.a'),
+      description: 'the last declaration is the one judged',
+    },
+  ],
+});
+
+// A nested at-rule is its own declaration context, so the nested spelling of a
+// violation is checked like the flat one. See finding audit-4037f66d.
+testRule({
+  ruleName,
+  config: [true],
+
+  reject: [
+    {
+      code: '.a { color: red; @media screen { text-align: justify; } }',
+      message: messages.expected('.a'),
+      description: 'a declaration inside a nested at-rule is checked',
+    },
+  ],
+});
+
+// --fix rewrites to `start`, which follows the writing direction.
+testRule({
+  ruleName,
+  config: [true],
+  fix: true,
+
+  reject: [
+    {
+      code: '.a { text-align: justify; }',
+      fixed: '.a { text-align: start; }',
+      message: messages.expected('.a'),
+      description: 'justify becomes start',
+    },
+    {
+      code: '.a { text-align: justify !important; }',
+      fixed: '.a { text-align: start !important; }',
+      message: messages.expected('.a'),
+      description: 'the !important flag survives the fix',
     },
   ],
 });

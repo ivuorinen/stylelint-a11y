@@ -8,6 +8,26 @@ testRule({
     {
       code: 'a { color: pink; }',
     },
+    {
+      code: 'a[href] { color: pink; }',
+      description: 'a conforming attribute on the same element',
+    },
+    {
+      code: 'div[link] { color: pink; }',
+      description: 'link is obsolete on body, not on div',
+    },
+    {
+      code: '[data-name] { color: pink; }',
+      description: 'a data attribute that merely resembles an obsolete one',
+    },
+    {
+      code: '.body[link] { color: pink; }',
+      description: 'a class named like an element does not qualify the attribute',
+    },
+    {
+      code: '#body[link] { color: pink; }',
+      description: 'an id named like an element does not qualify the attribute',
+    },
   ],
 
   reject: [
@@ -25,6 +45,42 @@ testRule({
       code: 'img[align], a[name] { color: pink; }',
       message: messages.expected('img[align], a[name]'),
       line: 1,
+    },
+    {
+      code: '.wrapper a[charset] { color: pink; }',
+      message: messages.expected('.wrapper a[charset]'),
+      line: 1,
+      description: 'obsolete attribute on a descendant element',
+    },
+    {
+      code: 'a[charset="utf-8"] { color: pink; }',
+      message: messages.expected('a[charset="utf-8"]'),
+      line: 1,
+      description: 'obsolete attribute matched with a value',
+    },
+    {
+      code: 'a.link[charset]:hover { color: pink; }',
+      message: messages.expected('a.link[charset]:hover'),
+      line: 1,
+      description: 'obsolete attribute alongside a class and pseudo-class',
+    },
+    {
+      code: '[dropzone] { color: pink; }',
+      message: messages.expected('[dropzone]'),
+      line: 1,
+      description: 'tag-independent obsolete attribute',
+    },
+    {
+      code: 'section [dropzone] { color: pink; }',
+      message: messages.expected('section [dropzone]'),
+      line: 1,
+      description: 'tag-independent obsolete attribute as a descendant',
+    },
+    {
+      code: 'BODY[LINK] { color: pink; }',
+      message: messages.expected('BODY[LINK]'),
+      line: 1,
+      description: 'tag and attribute are matched case-insensitively',
     },
   ],
 });
@@ -44,7 +100,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 35)
+// Non-standard syntax rule skipped
 testRule({
   ruleName,
   config: [true],
@@ -57,7 +113,7 @@ testRule({
   ],
 });
 
-// @page atrule with params (line 39)
+// At-rules are not walked by this rule
 testRule({
   ruleName,
   config: [true],
@@ -65,12 +121,12 @@ testRule({
   accept: [
     {
       code: '@page :first { margin: 1cm; }',
-      description: '@page atrule with params is walked (not an obsolete attribute)',
+      description: 'an at-rule is not walked by this rule',
     },
   ],
 });
 
-// Non-rule node type returns true from check (line 14)
+// Rules nested in a media query are reached like any other rule
 testRule({
   ruleName,
   config: [true],
@@ -78,7 +134,7 @@ testRule({
   accept: [
     {
       code: '@media screen { a { color: pink; } }',
-      description: 'non-rule node type returns true from check',
+      description: 'a rule nested in a media query is still checked',
     },
   ],
 });

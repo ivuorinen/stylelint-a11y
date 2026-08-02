@@ -71,7 +71,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 29)
+// Non-standard syntax rule skipped
 testRule({
   ruleName,
   config: [true],
@@ -80,6 +80,55 @@ testRule({
     {
       code: '%placeholder:focus { outline: none !important; }',
       description: 'skips SCSS placeholder selectors',
+    },
+    {
+      code: '{ outline: none !important; }',
+      description: 'a rule with an empty selector is skipped',
+    },
+  ],
+
+  reject: [
+    {
+      code: 'a:focus { /* c */ outline: none !important; }',
+      message: messages.expected('outline', 'a:focus'),
+      line: 1,
+      description: 'a comment among the declarations does not stop the scan',
+    },
+  ],
+});
+
+// Vendor-prefixed spellings name the same property. See finding audit-ae065bca.
+testRule({
+  ruleName,
+  config: [true],
+
+  reject: [
+    {
+      code: '.a:focus { -webkit-box-shadow: none !important; }',
+      message: messages.expected('-webkit-box-shadow', '.a:focus'),
+      description: 'a prefixed box-shadow is still a focus indicator',
+    },
+  ],
+});
+
+// --fix drops the flag; the declaration and every unrelated !important stay.
+testRule({
+  ruleName,
+  config: [true],
+  fix: true,
+
+  reject: [
+    {
+      code: '.a:focus { outline: 2px solid red !important; }',
+      fixed: '.a:focus { outline: 2px solid red; }',
+      message: messages.expected('outline', '.a:focus'),
+      description: 'the flag is removed, the outline is kept',
+    },
+    {
+      code: '.a:focus { box-shadow: 0 0 0 2px blue !important; color: red !important; }',
+      fixed: '.a:focus { box-shadow: 0 0 0 2px blue; color: red !important; }',
+      message: messages.expected('box-shadow', '.a:focus'),
+      description: 'an unrelated !important is left alone',
     },
   ],
 });

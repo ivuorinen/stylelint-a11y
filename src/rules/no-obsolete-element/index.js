@@ -1,6 +1,7 @@
 import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import { hasObsoleteSelector } from '../../utils/obsolete-selectors.js';
 import { obsoleteElements } from './obsoleteElements.js';
 
 export const ruleName = 'a11y/no-obsolete-element';
@@ -8,15 +9,6 @@ export const ruleName = 'a11y/no-obsolete-element';
 export const messages = utils.ruleMessages(ruleName, {
   expected: (selector) => `Unexpected using obsolete selector "${selector}"`,
 });
-
-function check(selector, node) {
-  if (node.type !== 'rule') {
-    return true;
-  }
-  return !node.selectors.some((sel) => {
-    return obsoleteElements.has(sel);
-  });
-}
 
 export default function (actual) {
   return (root, result) => {
@@ -26,28 +18,19 @@ export default function (actual) {
       return;
     }
 
-    root.walk((node) => {
-      let selector = null;
-
-      if (node.type === 'rule') {
-        if (!isStandardSyntaxRule(node)) {
-          return;
-        }
-        selector = node.selector;
-      } else if (node.type === 'atrule' && node.name.toLowerCase() === 'page' && node.params) {
-        selector = node.params;
-      }
-
-      if (!selector) {
+    root.walkRules((rule) => {
+      if (!isStandardSyntaxRule(rule) || !rule.selector) {
         return;
       }
 
-      const isAccepted = check(selector, node);
+      const isRejected = rule.selectors.some((selector) =>
+        hasObsoleteSelector(selector, obsoleteElements)
+      );
 
-      if (!isAccepted) {
+      if (isRejected) {
         utils.report({
-          message: messages.expected(selector),
-          node,
+          message: messages.expected(rule.selector),
+          node: rule,
           ruleName,
           result,
         });

@@ -37,3 +37,29 @@ testRule({
     },
   ],
 });
+
+// Same three shapes as media-prefers-color-scheme: both rules share
+// utils/create-media-query-rule.js.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: 'a { color: black; @media (prefers-contrast: more) { color: white; } }',
+      description: 'a counterpart nested in the rule itself covers the property',
+    },
+    {
+      code: '.a,.b { color: black; } @media (prefers-contrast: more) { .a, .b { color: white; } }',
+      description: 'selector lists match regardless of comma spacing',
+    },
+  ],
+
+  reject: [
+    {
+      code: '@media (prefers-contrast: more) { a { color: white; } } a { color: black; }',
+      message: messages.expected('a'),
+      description: 'an override placed before the rule loses the cascade and is not accepted',
+    },
+  ],
+});
