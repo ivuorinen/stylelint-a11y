@@ -31,8 +31,13 @@ const unitOf = (size) => {
 /**
  * Matches the font-size component of the `font` shorthand — the length that
  * precedes the optional `/line-height` and the mandatory font family.
+ *
+ * The number is spelled `\d+\.?\d*|\.\d+` rather than `(?:\d*\.)?\d+` so no
+ * quantifier nests inside another. The nested form made the pattern ambiguous
+ * — the engine can split a digit run between `\d*` and `\d+` many ways — which
+ * is the shape ReDoS detectors flag. Both accept the same values.
  */
-const FONT_SHORTHAND_SIZE = /(?:^|\s)((?:\d*\.)?\d+(?:px|pt|rem))(?=[\s/]|$)/i;
+const FONT_SHORTHAND_SIZE = /(?:^|\s)((?:\d+\.?\d*|\.\d+)(?:px|pt|rem))(?=[\s/]|$)/i;
 
 /**
  * The font size a declaration sets, or `null` when it sets none. The caller

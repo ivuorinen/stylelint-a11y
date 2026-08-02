@@ -23,9 +23,7 @@ const FIXABLE = new Set([
 ]);
 
 /** Registers all a11y rules as stylelint plugins. */
-const rulesPlugins = Object.keys(rules).map((ruleName) => {
-  const rule = rules[ruleName];
-
+const rulesPlugins = Object.entries(rules).map(([ruleName, rule]) => {
   rule.meta = {
     url: `${DOCS_BASE}/${ruleName}/README.md`,
     fixable: FIXABLE.has(ruleName),
