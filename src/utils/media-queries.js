@@ -9,9 +9,19 @@
  */
 const TRANSPARENT_AT_RULES = new Set(['media', 'supports', 'container']);
 
-/** True if an at-rule is a media query mentioning `feature`. */
+/**
+ * True if an at-rule is a *media query* mentioning `feature`.
+ *
+ * The `name` check matters: without it an `@supports (prefers-reduced-motion:
+ * reduce)` block counted as a feature query, and its contents were read as an
+ * override that the browser would never apply as one.
+ */
 export const isFeatureQuery = (node, feature) =>
-  !!node && node.type === 'atrule' && !!node.params && node.params.toLowerCase().includes(feature);
+  !!node &&
+  node.type === 'atrule' &&
+  node.name.toLowerCase() === 'media' &&
+  !!node.params &&
+  node.params.toLowerCase().includes(feature);
 
 /**
  * Every `@media (<feature>)` block reachable from `nodes`, descending through

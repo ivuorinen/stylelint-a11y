@@ -76,9 +76,7 @@ function uncoveredProperties(selector, node) {
   if (isCustomSelector(selector)) return [];
 
   // A rule already inside a reduced-motion block is the override itself.
-  const params = node.parent.params;
-
-  if (params && params.toLowerCase().includes(MEDIA_FEATURE)) return [];
+  if (isReducedMotion(node.parent)) return [];
 
   const animated = new Set(
     declarations

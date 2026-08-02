@@ -1,7 +1,7 @@
 import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
-import { someSelectorNode } from '../../utils/selectors.js';
+import { hasSubjectHover, toFocusSelector } from '../../utils/selectors.js';
 
 export const ruleName = 'a11y/selector-pseudo-class-focus';
 
@@ -10,29 +10,14 @@ export const messages = utils.ruleMessages(ruleName, {
 });
 
 /**
- * True if the selector hovers the element it selects, rather than merely
- * mentioning `:hover` inside a functional pseudo-class argument.
+ * The `:focus` counterpart of a `:hover` selector.
  *
- * `:not(:hover)` selects the *absence* of hover and `:has(:hover)` selects an
- * ancestor of a hovered element; neither has a `:focus` counterpart to
- * require, and rewriting the `:hover` inside them inverts what the selector
- * matches. Only a top-level `:hover` is the subject of this rule.
+ * Only reached for selectors `hasSubjectHover` accepted, which requires a
+ * successful parse — so `toFocusSelector` cannot return `null` here. No
+ * fallback: if that ever stops holding it should throw, not quietly emit an
+ * unrewritten selector.
  */
-const hasSubjectHover = (selector) =>
-  someSelectorNode(selector, (node) => {
-    if (node.type !== 'pseudo' || node.value.toLowerCase() !== ':hover') return false;
-
-    // Anything nested inside a functional pseudo-class (`:not(...)`,
-    // `:is(...)`, `:has(...)`) is an argument, not the subject.
-    for (let parent = node.parent; parent; parent = parent.parent) {
-      if (parent.type === 'pseudo') return false;
-    }
-
-    return true;
-  });
-
-/** The `:focus` counterpart of a `:hover` selector. */
-const toFocus = (selector) => selector.replace(/:hover/gi, ':focus').trim();
+const toFocus = (selector) => toFocusSelector(selector).trim();
 
 /** Every selector declared by rules under `parent`. */
 const declaredSelectors = (parent) =>

@@ -378,3 +378,25 @@ testRule({
     },
   ],
 });
+
+// A feature query is a @media. An @supports block whose params merely mention
+// the feature is not an override the browser would ever apply as one.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '.a:hover { animation: spin 1s; } @media (prefers-reduced-motion) { :is(.a, .b):hover, .a:hover { animation: none; } }',
+      description: 'a comma inside :is() does not break counterpart matching',
+    },
+  ],
+
+  reject: [
+    {
+      code: '.a { animation: spin 1s; }\n@supports (prefers-reduced-motion: reduce) { .a { animation: none; } }',
+      message: messages.expected('.a'),
+      description: '@supports mentioning the feature is not a media query',
+    },
+  ],
+});

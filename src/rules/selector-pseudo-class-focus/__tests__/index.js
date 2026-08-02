@@ -140,3 +140,27 @@ testRule({
     },
   ],
 });
+
+// Only the subject `:hover` is rewritten. A blanket regex also rewrote
+// arguments, so `.card:hover .child:not(:hover)` became
+// `.card:focus .child:not(:focus)` — a different set of elements.
+testRule({
+  ruleName,
+  config: [true],
+  fix: true,
+
+  reject: [
+    {
+      code: '.card:hover .child:not(:hover) { color: red; }',
+      fixed: '.card:hover .child:not(:hover), .card:focus .child:not(:hover) { color: red; }',
+      message: messages.expected('.card:hover .child:not(:hover)'),
+      description: 'a :hover argument is left alone while the subject is rewritten',
+    },
+    {
+      code: ':is(.a, .b):hover { color: red; }',
+      fixed: ':is(.a, .b):hover, :is(.a, .b):focus { color: red; }',
+      message: messages.expected(':is(.a, .b):hover'),
+      description: 'a comma inside :is() does not split the selector',
+    },
+  ],
+});
