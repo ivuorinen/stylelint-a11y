@@ -13,6 +13,9 @@ permissions:
 jobs:
   tests:
     strategy:
+      # One failing leg must not cancel the other five: a platform-specific
+      # failure otherwise hides whether the rest of the matrix is healthy.
+      fail-fast: false
       matrix:
         node_version: ['20', '22', '24']
         os: [ubuntu-latest, windows-latest]
