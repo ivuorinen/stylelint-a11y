@@ -32,6 +32,11 @@ img[align], a[name] {
 }
 ```
 
+## Not automatically fixable
+
+Replacing an obsolete attribute means changing the markup, not the stylesheet.
+Rewriting the selector alone would leave it matching nothing.
+
 ## WCAG Reference
 
 Best practice: avoid obsolete HTML attributes in selectors.

@@ -40,6 +40,12 @@ a:focus {
 }
 ```
 
+## Fixing
+
+The `--fix` option removes the `!important` flag. The declaration itself stays
+exactly as written — only its ability to out-rank a user stylesheet is
+dropped. `!important` on any other property in the same rule is left alone.
+
 ## WCAG Reference
 
 [2.4.7 Focus Visible (Level AA)](https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html)
