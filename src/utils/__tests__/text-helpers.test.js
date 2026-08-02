@@ -1,24 +1,20 @@
-import { textStyles, nodesProbablyForText } from '../text-helpers.js';
-
-describe('textStyles', () => {
-  it('contains expected text-related properties', () => {
-    expect(textStyles).toContain('color');
-    expect(textStyles).toContain('letter-spacing');
-    expect(textStyles).toContain('text-align');
-    expect(textStyles).toContain('line-height');
-  });
-
-  it('does not contain non-text properties', () => {
-    expect(textStyles).not.toContain('display');
-    expect(textStyles).not.toContain('margin');
-    expect(textStyles).not.toContain('padding');
-  });
-});
+import { nodesProbablyForText } from '../text-helpers.js';
 
 describe('nodesProbablyForText', () => {
   it('returns true when nodes contain a text-related property', () => {
     const nodes = [{ prop: 'color' }, { prop: 'display' }];
     expect(nodesProbablyForText(nodes)).toBe(true);
+  });
+
+  it.each(['color', 'letter-spacing', 'text-align', 'line-height', 'word-spacing'])(
+    'treats %s as text styling',
+    (prop) => {
+      expect(nodesProbablyForText([{ prop }])).toBe(true);
+    }
+  );
+
+  it.each(['display', 'margin', 'padding'])('does not treat %s as text styling', (prop) => {
+    expect(nodesProbablyForText([{ prop }])).toBe(false);
   });
 
   it('returns false when no nodes have text-related properties', () => {
