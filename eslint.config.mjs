@@ -17,6 +17,7 @@ export default [
       globals: {
         testRule: 'readonly',
         console: 'readonly',
+        URL: 'readonly',
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',

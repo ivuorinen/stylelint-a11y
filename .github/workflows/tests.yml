@@ -8,6 +8,8 @@ on:
     branches:
       - master
       - main
+permissions:
+  contents: read
 jobs:
   tests:
     strategy:
@@ -24,6 +26,10 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Run unit tests
         run: npm test
+
+      - name: Verify the published package
+        if: matrix.os == 'ubuntu-latest' && matrix.node_version == '22'
+        run: npm run smoke
