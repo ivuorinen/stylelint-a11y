@@ -42,6 +42,23 @@ a:focus {
 }
 ```
 
+## Which `:hover` counts
+
+Only a `:hover` that applies to the element the selector matches. A `:hover`
+inside a functional pseudo-class argument is not reported and never rewritten:
+`:not(:hover)` selects the absence of hover and `:has(:hover)` selects an
+ancestor, so neither has a `:focus` counterpart to require.
+
+```css
+/* not violations */
+.a:not(:hover) {
+  color: red;
+}
+.a:has(:hover) {
+  color: red;
+}
+```
+
 ## WCAG Reference
 
 [2.4.7 Focus Visible (Level AA)][focus-visible] and

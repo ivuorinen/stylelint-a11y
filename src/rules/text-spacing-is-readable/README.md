@@ -3,9 +3,14 @@
 Require readable text spacing
 (letter-spacing >= 0.12em, word-spacing >= 0.16em).
 
-The `--fix` option on the command line can
-automatically fix all the problems reported
-by this rule.
+The `--fix` option on the command line raises
+spacing below the threshold to the threshold.
+
+An explicit zero (`letter-spacing: 0`,
+`word-spacing: 0px`) is reported but never
+rewritten: widening spacing the author
+deliberately set to zero is a typographic
+decision, not a lint fix.
 
 ## Options
 
@@ -66,6 +71,19 @@ Set a custom minimum word-spacing threshold.
   ]
 }
 ```
+
+## Units
+
+Thresholds are expressed in `em`. `px` and `pt` values are converted against a
+16px root font size — the same heuristic `no-spread-text` uses — so spacing
+authored in absolute units is checked rather than skipped.
+
+Values that cannot be resolved statically (`%`, `calc()`, viewport units,
+custom properties) are skipped rather than guessed at.
+
+The `--fix` option writes the threshold in `em` whatever unit the declaration
+used, because `0.12em` has no fixed `px` equivalent — it depends on the element's
+font size, which the rule cannot know.
 
 ## WCAG Reference
 

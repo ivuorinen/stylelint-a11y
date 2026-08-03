@@ -8,6 +8,22 @@ testRule({
     {
       code: '.foo { color: pink; }',
     },
+    {
+      code: 'menu { color: pink; }',
+      description: 'menu is a conforming element in the current HTML spec',
+    },
+    {
+      code: 'hgroup { color: pink; }',
+      description: 'hgroup is a conforming element in the current HTML spec',
+    },
+    {
+      code: '.blink { color: pink; }',
+      description: 'a class that merely shares a name with an obsolete element',
+    },
+    {
+      code: '[data-el="blink"] { color: pink; }',
+      description: 'an attribute value that merely mentions an obsolete element',
+    },
   ],
 
   reject: [
@@ -25,6 +41,30 @@ testRule({
       code: 'applet, blink { color: pink; }',
       message: messages.expected('applet, blink'),
       line: 1,
+    },
+    {
+      code: '.wrapper font { color: pink; }',
+      message: messages.expected('.wrapper font'),
+      line: 1,
+      description: 'obsolete element as a descendant',
+    },
+    {
+      code: 'font.legacy { color: pink; }',
+      message: messages.expected('font.legacy'),
+      line: 1,
+      description: 'obsolete element qualified by a class',
+    },
+    {
+      code: 'nav > marquee:hover { color: pink; }',
+      message: messages.expected('nav > marquee:hover'),
+      line: 1,
+      description: 'obsolete element behind a combinator and a pseudo-class',
+    },
+    {
+      code: 'BLINK { color: pink; }',
+      message: messages.expected('BLINK'),
+      line: 1,
+      description: 'element names are matched case-insensitively',
     },
   ],
 });
@@ -44,7 +84,7 @@ testRule({
   ],
 });
 
-// Non-standard syntax rule skipped (line 34)
+// Non-standard syntax rule skipped
 testRule({
   ruleName,
   config: [true],
@@ -57,7 +97,7 @@ testRule({
   ],
 });
 
-// @page atrule with params (line 38)
+// At-rules are not walked by this rule
 testRule({
   ruleName,
   config: [true],
@@ -65,12 +105,12 @@ testRule({
   accept: [
     {
       code: '@page :first { margin: 1cm; }',
-      description: '@page atrule with params is walked (not an obsolete element)',
+      description: 'an at-rule is not walked by this rule',
     },
   ],
 });
 
-// Non-rule node type returns true from check (line 14)
+// Rules nested in a media query are reached like any other rule
 testRule({
   ruleName,
   config: [true],
@@ -78,7 +118,26 @@ testRule({
   accept: [
     {
       code: '@media screen { .foo { color: pink; } }',
-      description: 'non-rule node type returns true from check',
+      description: 'a rule nested in a media query is still checked',
+    },
+  ],
+});
+
+// `image` is a conforming SVG element, and the HTML parser rewrites an
+// `<image>` start tag to `img` — so the tag can only legitimately appear as
+// SVG, and this rule could never catch the HTML mistake anyway.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: 'svg image { color: pink; }',
+      description: 'image is a conforming SVG element',
+    },
+    {
+      code: 'image { color: pink; }',
+      description: 'a bare image selector can only be the SVG element',
     },
   ],
 });

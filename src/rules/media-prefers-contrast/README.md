@@ -44,6 +44,21 @@ The following patterns are _not_ considered violations:
 }
 ```
 
+## Matching the counterpart
+
+The counterpart may be a sibling media query or one nested inside the rule
+itself; both satisfy the rule. Selector lists are compared normalized, so
+spacing and order do not matter.
+
+A sibling media query only counts when it comes **after** the rule it
+overrides — both carry the same specificity, so an override placed earlier
+loses the cascade and restyles nothing.
+
+## Not automatically fixable
+
+The rule can tell that a high-contrast counterpart is missing, but not what
+colour belongs in it. Choosing it stays a design decision.
+
 ## WCAG Reference
 
 [1.4.3 Contrast (Minimum) (Level AA)][contrast-min]

@@ -43,6 +43,24 @@ The following pattern are considered violations:
 }
 ```
 
+```css
+.qux:focus {
+  outline: 0px;
+}
+```
+
+```css
+.corge:focus {
+  outline-style: none;
+}
+```
+
+```css
+.grault:focus {
+  outline-width: 0;
+}
+```
+
 The following patterns are _not_ considered violations:
 
 ```css
@@ -71,6 +89,32 @@ $primary-color: #333;
 }
 ```
 
+```css
+.qux:focus {
+  outline: 0px;
+  box-shadow: 0 0 0 2px blue;
+}
+```
+
+## Properties checked
+
+The rule fires when a `:focus` selector removes the focus ring through any of:
+
+| Property        | Removing values                                 |
+| --------------- | ----------------------------------------------- |
+| `outline`       | `none`, or any zero-length part (`0`, `0px`, …) |
+| `outline-style` | `none`                                          |
+| `outline-width` | any zero length                                 |
+
+A removed outline is accepted only when the same rule provides a visible
+replacement via `border`, `border-color` or `box-shadow` — a `transparent`
+replacement does not count.
+
+Function notation is stripped before the value is inspected, so the bare
+numbers in modern colour syntax are not mistaken for a zero outline width:
+`outline: 2px solid rgb(0 0 0)` and `outline: 2px solid hsl(0 0% 0%)` are
+visible focus rings and are accepted.
+
 ## Note
 
 [Similar rule](https://github.com/stylelint/stylelint/blob/master/lib/rules/declaration-property-value-blacklist/README.md) is in [Stylelint](https://github.com/stylelint/stylelint), but it triggers another error message and does not check for `:focus` selector and `border` property.
@@ -82,6 +126,22 @@ $primary-color: #333;
   }
 }
 ```
+
+## Nesting
+
+An at-rule nested inside a rule is its own declaration context and is checked
+separately, so `.a:focus { @media screen { outline: none } }` is reported just
+like the flat spelling.
+
+## Fixing
+
+The `--fix` option sets the suppressing declaration to `revert`, restoring the
+user-agent focus ring for exactly the property that hid it — `outline: none`
+becomes `outline: revert`, `outline-color: transparent` becomes
+`outline-color: revert`.
+
+Reverting rather than deleting keeps the intent visible in the source, and the
+rule has no basis to invent a replacement ring of its own design.
 
 ## WCAG Reference
 

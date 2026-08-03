@@ -44,6 +44,14 @@ Supports `s` and `ms` units.
 { "a11y/animation-duration-reasonable": [true, { "maxDuration": "3s" }] }
 ```
 
+## Fixing
+
+The `--fix` option clamps an over-budget duration to the threshold in its own
+unit — `10s` becomes `5s`, `8000ms` becomes `5000ms`. Nothing else in the value
+changes: the name, timing function, delay, iteration count and direction all
+survive, and in a comma-separated list only the entries over budget are
+touched.
+
 ## WCAG Reference
 
 [2.2.2 Pause, Stop, Hide (Level A)](https://www.w3.org/WAI/WCAG21/Understanding/pause-stop-hide.html)

@@ -1,3 +1,9 @@
+/**
+ * Elements listed under "Non-conforming features" in the HTML Living Standard.
+ * `menu` and `hgroup` are deliberately absent: both are conforming elements in
+ * the current spec. Re-check against the spec's obsolete-features section
+ * before adding entries.
+ */
 export const obsoleteElements = new Set([
   'applet',
   'acronym',
@@ -6,7 +12,6 @@ export const obsoleteElements = new Set([
   'frame',
   'frameset',
   'noframes',
-  'hgroup',
   'isindex',
   'listing',
   'nextid',
@@ -27,6 +32,5 @@ export const obsoleteElements = new Set([
   'spacer',
   'tt',
   'keygen',
-  'menu',
   'menuitem',
 ]);

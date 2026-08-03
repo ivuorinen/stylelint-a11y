@@ -8,9 +8,14 @@ on:
     branches:
       - master
       - main
+permissions:
+  contents: read
 jobs:
   tests:
     strategy:
+      # One failing leg must not cancel the other five: a platform-specific
+      # failure otherwise hides whether the rest of the matrix is healthy.
+      fail-fast: false
       matrix:
         node_version: ['20', '22', '24']
         os: [ubuntu-latest, windows-latest]
@@ -24,6 +29,10 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Run unit tests
         run: npm test
+
+      - name: Verify the published package
+        if: matrix.os == 'ubuntu-latest' && matrix.node_version == '22'
+        run: npm run smoke

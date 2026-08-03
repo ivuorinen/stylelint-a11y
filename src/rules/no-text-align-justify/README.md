@@ -51,6 +51,12 @@ The following patterns are _not_ considered violations:
 }
 ```
 
+## Fixing
+
+The `--fix` option rewrites the value to `start` rather than `left`, so the fix
+follows the writing direction and does not left-align right-to-left text. An
+`!important` flag on the declaration is preserved.
+
 ## WCAG Reference
 
 [1.4.8 Visual Presentation (Level AAA)](https://www.w3.org/WAI/WCAG21/Understanding/visual-presentation.html)

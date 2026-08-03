@@ -1,6 +1,7 @@
 import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
+import { unprefixed } from '../../utils/declarations.js';
 
 export const ruleName = 'a11y/no-important-on-focus';
 
@@ -42,14 +43,24 @@ export default function (actual) {
         if (decl.type !== 'decl') return;
         if (!decl.important) return;
 
+        // Matched unprefixed, but reported as written so the author can find
+        // the declaration.
         const prop = decl.prop.toLowerCase();
 
-        if (isFocusIndicatorProperty(prop)) {
+        if (isFocusIndicatorProperty(unprefixed(prop))) {
           utils.report({
             message: messages.expected(prop, selector),
             node: decl,
             ruleName,
             result,
+            // Dropping the flag is exactly what the rule asks for: the
+            // declaration stays, it just stops out-ranking a user stylesheet.
+            // `raws.important` holds the original ` !important` text and would
+            // otherwise be printed back out.
+            fix: () => {
+              decl.important = false;
+              delete decl.raws.important;
+            },
           });
         }
       });

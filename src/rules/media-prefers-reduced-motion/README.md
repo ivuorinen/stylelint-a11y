@@ -6,6 +6,10 @@ Safari 10.1 [introduced](https://webkit.org/blog/7551/responsive-design-for-moti
 
 The `--fix` option on the command line can automatically fix all of the problems reported by this rule.
 
+The generated `@media (prefers-reduced-motion: reduce)` block is placed **after** the rule it overrides. Both have the same specificity, so an override placed before the rule would lose the cascade and reduce no motion at all. For the same reason, an existing reduced-motion block that appears _before_ the rule does not satisfy it.
+
+Every animated property needs its own counterpart: a rule declaring both `transition` and `animation` is not satisfied by an override for only one of them.
+
 ## Options
 
 ### true
@@ -58,6 +62,26 @@ div {
   }
 }
 ```
+
+## Matching the override
+
+The override may be a sibling `@media (prefers-reduced-motion)` block or one
+nested inside the rule itself. A nested block only covers the rule it is
+nested in — a nested block belonging to some other rule neutralises nothing
+here.
+
+Selector lists are compared normalized, so spacing and order do not matter.
+Sibling blocks only count when they come **after** the rule they override:
+both carry the same specificity, so an earlier override loses the cascade and
+reduces no motion.
+
+## Grouping at-rules
+
+The override is found through `@media`, `@supports` and `@container`, so
+grouping it in a feature query or a nested media query still satisfies the
+rule. `@layer` is not searched: unlayered styles beat every layer, so an
+override inside one does not win over a rule outside it and the violation
+stands.
 
 ## WCAG Reference
 

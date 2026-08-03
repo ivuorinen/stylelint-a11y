@@ -1,0 +1,16 @@
+# Check every text file out with LF on every platform.
+#
+# Without this, Windows checkouts convert to CRLF and `eslint-plugin-prettier`
+# (which defaults to `endOfLine: "lf"`) reports every line of every file. That
+# went unnoticed while `pretest` ran `eslint --fix`, because the fix silently
+# rewrote the endings; once `pretest` stopped mutating the working tree the
+# Windows CI leg failed with 6329 `Delete ␍` errors.
+* text=auto eol=lf
+
+# Binary files must not be normalised.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

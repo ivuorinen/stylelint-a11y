@@ -2,6 +2,8 @@ import stylelint from 'stylelint';
 const { utils } = stylelint;
 import isStandardSyntaxRule from 'stylelint/lib/utils/isStandardSyntaxRule.mjs';
 import { nodesProbablyForText } from '../../utils/text-helpers.js';
+import { declarationContexts, effectiveDeclaration } from '../../utils/declarations.js';
+import { ROOT_FONT_SIZE_PX } from '../../utils/lengths.js';
 
 export const ruleName = 'a11y/text-spacing-is-readable';
 
@@ -17,7 +19,50 @@ const DEFAULT_MIN_WORD_SPACING = 0.16;
 
 const ignoredValues = ['normal', 'inherit', 'initial', 'unset'];
 
-export default function (actual, options, context) {
+/**
+ * A valid `em` threshold option: a non-negative length in `em`.
+ *
+ * Anchored rather than `endsWith('em')`, which also accepted `rem` — a `1rem`
+ * threshold was then compared as if it were `1em` and echoed verbatim in the
+ * message.
+ *
+ * The number is spelled as three flat alternatives. Two other spellings are
+ * both rejected by a static analyser, in opposite directions:
+ *
+ * - `\d*\.?\d+` leaves the dot optional, so the digit quantifiers sit
+ *   adjacent and can trade characters. The engine then has many ways to split
+ *   one digit run and backtracks polynomially on a long non-matching value.
+ * - `\d+(?:\.\d+)?` fixes that, but nests a quantifier inside a quantified
+ *   group — star height 2, which `safe-regex` rejects on sight.
+ *
+ * `\d+\.\d+|\d+|\.\d+` satisfies both: every quantifier is top level, and
+ * the dot separating the two `\d+` is mandatory, so neither can take the
+ * other's characters. It also rejects `12.`, which is not a valid CSS number.
+ */
+const isEmThreshold = (v) => typeof v === 'string' && /^(?:\d+\.\d+|\d+|\.\d+)em$/i.test(v.trim());
+
+/**
+ * A spacing value expressed in `em`, or `null` when it cannot be resolved
+ * statically (`%`, `calc()`, viewport units, custom properties).
+ *
+ * `em` and `rem` are taken at face value; `px` and `pt` are converted against
+ * the 16px root assumption, the same heuristic `no-spread-text` uses. Without
+ * this, spacing authored in `px` was skipped entirely and the rule reported
+ * nothing on px-based stylesheets.
+ */
+function toEm(value) {
+  const number = parseFloat(value);
+
+  if (!Number.isFinite(number)) return null;
+  if (value.endsWith('em')) return number;
+  if (value.endsWith('px')) return number / ROOT_FONT_SIZE_PX;
+  if (value.endsWith('pt')) return number / 0.75 / ROOT_FONT_SIZE_PX;
+  if (number === 0) return 0;
+
+  return null;
+}
+
+export default function (actual, options) {
   return (root, result) => {
     const validOptions = utils.validateOptions(
       result,
@@ -26,12 +71,8 @@ export default function (actual, options, context) {
       {
         actual: options,
         possible: {
-          minLetterSpacing: [
-            (v) => typeof v === 'string' && v.endsWith('em') && Number.isFinite(parseFloat(v)),
-          ],
-          minWordSpacing: [
-            (v) => typeof v === 'string' && v.endsWith('em') && Number.isFinite(parseFloat(v)),
-          ],
+          minLetterSpacing: [isEmThreshold],
+          minWordSpacing: [isEmThreshold],
         },
         optional: true,
       }
@@ -61,43 +102,61 @@ export default function (actual, options, context) {
         return;
       }
 
-      if (!nodesProbablyForText(rule.nodes)) {
-        return;
-      }
+      // One declaration per property per context: a later `letter-spacing`
+      // overrides an earlier one, and a nested at-rule is its own context.
+      const spacing = [...declarationContexts(rule)]
+        .filter(
+          (context) => nodesProbablyForText(rule.nodes) || nodesProbablyForText(context.nodes)
+        )
+        .flatMap((context) =>
+          ['letter-spacing', 'word-spacing'].map((name) =>
+            effectiveDeclaration(context, (prop) => prop === name)
+          )
+        )
+        .filter(Boolean);
 
-      rule.nodes.forEach((decl) => {
-        if (decl.type !== 'decl') return;
-
+      spacing.forEach((decl) => {
         const prop = decl.prop.toLowerCase();
         const value = decl.value.toLowerCase();
 
         if (ignoredValues.includes(value)) return;
-        const isZero = value === '0' || parseFloat(value) === 0;
-        if (!isZero && !value.endsWith('em')) return;
 
-        if (prop === 'letter-spacing' && parseFloat(value) < minLetterSpacing) {
-          if (context.fix) {
-            decl.value = minLetterSpacingStr;
-            return;
-          }
+        const em = toEm(value);
+
+        if (em === null) return;
+
+        const isZero = em === 0;
+
+        // An explicit zero is reported but never auto-fixed: rewriting it would
+        // silently restyle text that the author deliberately set to no extra
+        // spacing. Widening it is a typographic decision, not a lint fix.
+        const fixable = !isZero;
+
+        if (prop === 'letter-spacing' && em < minLetterSpacing) {
           utils.report({
             message: messages.expectedLetterSpacing(selector, minLetterSpacingStr),
             node: rule,
             ruleName,
             result,
+            ...(fixable && {
+              fix: () => {
+                decl.value = minLetterSpacingStr;
+              },
+            }),
           });
         }
 
-        if (prop === 'word-spacing' && parseFloat(value) < minWordSpacing) {
-          if (context.fix) {
-            decl.value = minWordSpacingStr;
-            return;
-          }
+        if (prop === 'word-spacing' && em < minWordSpacing) {
           utils.report({
             message: messages.expectedWordSpacing(selector, minWordSpacingStr),
             node: rule,
             ruleName,
             result,
+            ...(fixable && {
+              fix: () => {
+                decl.value = minWordSpacingStr;
+              },
+            }),
           });
         }
       });

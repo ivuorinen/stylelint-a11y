@@ -1,4 +1,14 @@
 exclude_paths:
   - CLAUDE.md
   - docs/**
+  # Test files live both in `__tests__/` directories and beside the code they
+  # cover (`src/**/*.test.js`). Only the first pattern was listed, so the
+  # cross-cutting suites were analysed as production code — every
+  # `FIXTURES[rule]` lookup in them was reported as object injection.
   - '**/__tests__/**'
+  - '**/*.test.js'
+  # Dev-only harness, not part of the published package (see `files` in
+  # package.json). Its whole job is creating a temp directory and writing into
+  # it, so every `fs` call is a non-literal-filename finding by construction.
+  # There is no external input: the paths come from `mkdtemp` and `cwd`.
+  - scripts/**
