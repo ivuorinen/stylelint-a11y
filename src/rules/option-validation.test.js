@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import stylelint from 'stylelint';
 import plugins from '../index.js';
 
@@ -45,4 +46,36 @@ describe('secondary option validation', () => {
 
     expect(results[0].invalidOptionWarnings).toHaveLength(0);
   });
+});
+
+/**
+ * Two digit quantifiers separated only by an optional atom (`\d*\.?\d+`) can
+ * trade characters, so the engine has many ways to split one digit run and
+ * backtracks polynomially on a long non-matching value. Requiring a digit
+ * after the dot (`\d+(?:\.\d+)?|\.\d+`) makes each split unique.
+ *
+ * This asserts the property directly on the source, so a future rule cannot
+ * reintroduce the shape without failing here.
+ */
+describe('numeric patterns are unambiguous', () => {
+  const AMBIGUOUS = /\\d[*+][^/]{0,4}\?\s*\\d[*+]/;
+
+  /** Source with comments stripped — they quote the bad shape to explain it. */
+  const code = (source) =>
+    source
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('//'));
+
+  it.each(['font-size-is-readable', 'text-spacing-is-readable'])(
+    '%s declares no exchangeable digit quantifiers',
+    async (rule) => {
+      const source = await readFile(new URL(`./${rule}/index.js`, import.meta.url), 'utf8');
+      const offenders = code(source)
+        .filter((line) => AMBIGUOUS.test(line))
+        .map((line) => line.trim());
+
+      expect(offenders).toEqual([]);
+    }
+  );
 });

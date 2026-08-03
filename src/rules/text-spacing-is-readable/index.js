@@ -22,11 +22,18 @@ const ignoredValues = ['normal', 'inherit', 'initial', 'unset'];
 /**
  * A valid `em` threshold option: a non-negative length in `em`.
  *
- * Matched with an anchored pattern rather than `endsWith('em')`, which also
- * accepted `rem` — a `1rem` threshold was then compared as if it were `1em`
- * and echoed verbatim in the message.
+ * Anchored rather than `endsWith('em')`, which also accepted `rem` — a `1rem`
+ * threshold was then compared as if it were `1em` and echoed verbatim in the
+ * message.
+ *
+ * The number is spelled `\d+(?:\.\d+)?|\.\d+`, never `\d*\.?\d+`. In the
+ * latter the dot is optional, so the two digit quantifiers sit adjacent and
+ * can trade characters — the engine then has many ways to split one digit run
+ * and backtracks polynomially on a long non-matching value. Requiring a digit
+ * after the dot makes each split unique, and rejects `12.` besides, which is
+ * not a valid CSS number anyway.
  */
-const isEmThreshold = (v) => typeof v === 'string' && /^\d*\.?\d+em$/i.test(v.trim());
+const isEmThreshold = (v) => typeof v === 'string' && /^(?:\d+(?:\.\d+)?|\.\d+)em$/i.test(v.trim());
 
 /**
  * A spacing value expressed in `em`, or `null` when it cannot be resolved
