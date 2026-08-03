@@ -46,17 +46,29 @@ function removesOutline(prop, value) {
 }
 
 /**
- * The declaration that removes the focus ring in this context, or `null` when
+ * Every declaration that removes the focus ring in this context. Empty when
  * the ring survives — either because nothing removes it, or because the same
  * context supplies a visible replacement.
  */
 function ringRemovedBy(context) {
-  // Only the last declaration across the outline family applies, so an earlier
+  // Per property, not per family: `outline-style` and `outline-width` are
+  // distinct longhands that do not override one another, so both can suppress
+  // the ring at once. Taking only the last declaration across the family let
+  // `outline-style: none; outline-width: 0` be "fixed" by reverting the width
+  // alone — the ring stayed gone, and the next pass read the effective
+  // declaration as `outline-width: revert` and reported nothing.
+  //
+  // Within one property the last declaration still wins, so an earlier
   // `outline: 0` fallback followed by a real ring is not a removed outline.
-  const outline = effectiveDeclaration(context, (prop) => outlineProperties.has(prop));
+  const suppressing = [...outlineProperties]
+    .map((prop) => effectiveDeclaration(context, (name) => name === prop))
+    .filter(
+      (declaration) =>
+        declaration && removesOutline(declaration.prop.toLowerCase(), declaration.value)
+    );
 
-  if (outline === null || !removesOutline(outline.prop.toLowerCase(), outline.value)) {
-    return null;
+  if (suppressing.length === 0) {
+    return [];
   }
 
   const hasReplacement = context.nodes.some(
@@ -66,7 +78,7 @@ function ringRemovedBy(context) {
       !o.value.toLowerCase().match(/transparent/gi)
   );
 
-  return hasReplacement ? null : outline;
+  return hasReplacement ? [] : suppressing;
 }
 
 export default function (actual) {
@@ -82,7 +94,7 @@ export default function (actual) {
         return;
       }
 
-      const removed = [...declarationContexts(rule)].map(ringRemovedBy).filter(Boolean);
+      const removed = [...declarationContexts(rule)].flatMap(ringRemovedBy);
 
       if (removed.length > 0) {
         utils.report({

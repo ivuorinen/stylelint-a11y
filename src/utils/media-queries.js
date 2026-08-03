@@ -1,15 +1,4 @@
 /**
- * At-rules that group without changing the cascade origin, layer or proximity,
- * so a counterpart inside one still overrides a rule outside it.
- *
- * `@layer` and `@scope` are deliberately absent. Unlayered styles beat every
- * layer, and `@scope` changes proximity, so an override inside either does not
- * necessarily win over a rule outside it — descending into them would turn a
- * correct report into a false negative.
- */
-const TRANSPARENT_AT_RULES = new Set(['media', 'supports', 'container']);
-
-/**
  * True if an at-rule is a *media query* mentioning `feature`.
  *
  * The `name` check matters: without it an `@supports (prefers-reduced-motion:
@@ -24,24 +13,24 @@ export const isFeatureQuery = (node, feature) =>
   node.params.toLowerCase().includes(feature);
 
 /**
- * Every `@media (<feature>)` block reachable from `nodes`, descending through
- * transparent grouping at-rules so a counterpart wrapped in `@supports` or a
- * nested `@media` is still found.
+ * The `@media (<feature>)` blocks among `nodes` that can override a rule those
+ * nodes are siblings of.
  *
- * The single implementation shared by both counterpart searches — the two have
- * drifted apart before, and this is the part that kept drifting.
+ * Deliberately does **not** descend into `@media`, `@supports`, `@container`,
+ * `@layer` or `@scope`. Every one of them narrows when its contents apply, so
+ * a counterpart inside one does not cover a rule outside it:
+ *
+ * - `@supports`, `@container` and a nested `@media` each add a condition. An
+ *   override gated on `@supports (color: red)` reduces no motion on a browser
+ *   where that condition is false, while the animated rule outside the group
+ *   still applies — so accepting it reports clean on a stylesheet that fails
+ *   exactly the users this rule protects.
+ * - `@layer` changes the cascade layer and `@scope` changes proximity, so an
+ *   override inside either does not necessarily win over a rule outside it:
+ *   unlayered styles beat every layer.
+ *
+ * A counterpart written in the same group as the rule it overrides is a
+ * *sibling* of that rule, so it is found without any descent.
  */
-export function* featureQueryBlocks(nodes, feature) {
-  for (const node of nodes) {
-    if (!node || node.type !== 'atrule' || !node.nodes) continue;
-
-    if (isFeatureQuery(node, feature)) {
-      yield node;
-      continue;
-    }
-
-    if (TRANSPARENT_AT_RULES.has(node.name.toLowerCase())) {
-      yield* featureQueryBlocks(node.nodes, feature);
-    }
-  }
-}
+export const featureQueryBlocks = (nodes, feature) =>
+  nodes.filter((node) => isFeatureQuery(node, feature) && node.nodes);

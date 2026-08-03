@@ -325,16 +325,22 @@ testRule({
 
   accept: [
     {
-      code: '.a { animation: spin 1s; } @supports (color: red) { @media (prefers-reduced-motion) { .a { animation: none; } } }',
-      description: 'an override wrapped in @supports is found',
-    },
-    {
-      code: '.a { animation: spin 1s; } @media screen { @media (prefers-reduced-motion) { .a { animation: none; } } }',
-      description: 'an override in a nested media query is found',
+      code: '@supports (color: red) { .a { animation: spin 1s; } @media (prefers-reduced-motion) { .a { animation: none; } } }',
+      description: 'an override in the same group as the rule covers it',
     },
   ],
 
   reject: [
+    {
+      code: '.a { animation: spin 1s; } @supports (color: red) { @media (prefers-reduced-motion) { .a { animation: none; } } }',
+      message: messages.expected('.a'),
+      description: 'an override gated on @supports reduces no motion where that condition is false',
+    },
+    {
+      code: '.a { animation: spin 1s; } @media screen { @media (prefers-reduced-motion) { .a { animation: none; } } }',
+      message: messages.expected('.a'),
+      description: 'an override gated on a nested media query is narrower than the rule',
+    },
     {
       code: '.a { animation: spin 1s; } @layer m { @media (prefers-reduced-motion) { .a { animation: none; } } }',
       message: messages.expected('.a'),

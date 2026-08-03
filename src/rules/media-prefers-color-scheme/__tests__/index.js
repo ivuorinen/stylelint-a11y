@@ -172,16 +172,22 @@ testRule({
 
   accept: [
     {
-      code: 'a { color: black; } @supports (color: red) { @media (prefers-color-scheme: dark) { a { color: white; } } }',
-      description: 'a counterpart wrapped in @supports is found',
-    },
-    {
-      code: 'a { color: black; } @media screen { @media (prefers-color-scheme: dark) { a { color: white; } } }',
-      description: 'a counterpart in a nested media query is found',
+      code: '@supports (color: red) { a { color: black; } @media (prefers-color-scheme: dark) { a { color: white; } } }',
+      description: 'a counterpart in the same group as the rule covers it',
     },
   ],
 
   reject: [
+    {
+      code: 'a { color: black; } @supports (color: red) { @media (prefers-color-scheme: dark) { a { color: white; } } }',
+      message: messages.expected('a'),
+      description: 'a counterpart gated on @supports does not cover an ungated rule',
+    },
+    {
+      code: 'a { color: black; } @media screen { @media (prefers-color-scheme: dark) { a { color: white; } } }',
+      message: messages.expected('a'),
+      description: 'a counterpart gated on a nested media query is narrower than the rule',
+    },
     {
       code: 'a { color: black; } @layer theme { @media (prefers-color-scheme: dark) { a { color: white; } } }',
       message: messages.expected('a'),

@@ -12,7 +12,6 @@ export const obsoleteElements = new Set([
   'frame',
   'frameset',
   'noframes',
-  'image',
   'isindex',
   'listing',
   'nextid',

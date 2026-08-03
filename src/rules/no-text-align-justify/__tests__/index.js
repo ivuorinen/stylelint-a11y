@@ -67,20 +67,24 @@ testRule({
   ],
 });
 
-// At-rules are not walked by this rule
+// `@page` is not walked by this rule. The declaration is the violating one, so
+// the case fails if the rule ever starts traversing @page — the previous
+// fixture used `margin: 1cm` and passed either way.
 testRule({
   ruleName,
   config: [true],
 
   accept: [
     {
-      code: '@page :first { margin: 1cm; }',
-      description: 'an at-rule is not walked by this rule',
+      code: '@page :first { text-align: justify; }',
+      description: '@page is not walked by this rule',
     },
   ],
 });
 
-// Rules nested in a media query are reached like any other rule
+// Rules nested in a media query are reached like any other rule. The reject
+// case is what proves the traversal happens; an accepted value would pass even
+// if the rule stopped descending.
 testRule({
   ruleName,
   config: [true],
@@ -88,6 +92,14 @@ testRule({
   accept: [
     {
       code: '@media screen { .foo { text-align: center; } }',
+      description: 'an accepted value nested in a media query stays accepted',
+    },
+  ],
+
+  reject: [
+    {
+      code: '@media screen { .foo { text-align: justify; } }',
+      message: messages.expected('.foo'),
       description: 'a rule nested in a media query is still checked',
     },
   ],

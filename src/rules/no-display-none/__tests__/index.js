@@ -160,3 +160,34 @@ testRule({
     },
   ],
 });
+
+// `@media not print` means everything *except* print, so it affects screen
+// output. Matching the bare word `print` treated it as print-only.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: '@media only print { .n { display: none; } }',
+      description: 'only print is print-only',
+    },
+    {
+      code: '@media print and (min-width: 10px) { .n { display: none; } }',
+      description: 'a qualified print query is still print-only',
+    },
+  ],
+
+  reject: [
+    {
+      code: '@media not print { .n { display: none; } }',
+      message: messages.expected('.n'),
+      description: 'not print applies to screen output',
+    },
+    {
+      code: '@media all { .n { display: none; } }',
+      message: messages.expected('.n'),
+      description: 'all includes screen',
+    },
+  ],
+});

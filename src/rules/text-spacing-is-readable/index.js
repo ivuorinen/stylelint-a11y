@@ -19,9 +19,14 @@ const DEFAULT_MIN_WORD_SPACING = 0.16;
 
 const ignoredValues = ['normal', 'inherit', 'initial', 'unset'];
 
-/** A valid `em` threshold option: a non-negative finite length in `em`. */
-const isEmThreshold = (v) =>
-  typeof v === 'string' && v.endsWith('em') && Number.isFinite(parseFloat(v)) && parseFloat(v) >= 0;
+/**
+ * A valid `em` threshold option: a non-negative length in `em`.
+ *
+ * Matched with an anchored pattern rather than `endsWith('em')`, which also
+ * accepted `rem` — a `1rem` threshold was then compared as if it were `1em`
+ * and echoed verbatim in the message.
+ */
+const isEmThreshold = (v) => typeof v === 'string' && /^\d*\.?\d+em$/i.test(v.trim());
 
 /**
  * A spacing value expressed in `em`, or `null` when it cannot be resolved

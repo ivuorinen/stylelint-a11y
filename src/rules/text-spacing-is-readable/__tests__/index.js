@@ -253,3 +253,19 @@ testRule({
     },
   ],
 });
+
+// `'1rem'.endsWith('em')` is true, so a rem threshold passed validation and
+// was then compared as if it were em.
+testRule({
+  ruleName,
+  config: [true, { minLetterSpacing: '1rem' }],
+
+  reject: [
+    {
+      code: '.a { color: red; }',
+      message:
+        'Invalid value "1rem" for option "minLetterSpacing" of rule "a11y/text-spacing-is-readable"',
+      description: 'a rem threshold is not an em threshold',
+    },
+  ],
+});

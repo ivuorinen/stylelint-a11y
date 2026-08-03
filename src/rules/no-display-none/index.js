@@ -15,8 +15,12 @@ export const messages = utils.ruleMessages(ruleName, {
  * Hiding navigation and controls in a print stylesheet is recommended
  * practice and carries none of the cost this rule exists to prevent: print
  * output has no assistive-technology interaction model in which the hidden
- * node could have been announced. `@media screen, print` is not exempt — it
- * affects screen output too.
+ * node could have been announced.
+ *
+ * Only a query that targets print and nothing else is exempt.
+ * `@media screen, print` also affects screen output, and `@media not print`
+ * means *everything except* print — matching the bare word `print` treated
+ * that as print-only and let a real violation through.
  */
 function isPrintOnly(node) {
   // Starts at `node`, not its parent: a declaration context can itself be the
@@ -24,9 +28,10 @@ function isPrintOnly(node) {
   for (let parent = node; parent; parent = parent.parent) {
     if (parent.type !== 'atrule' || parent.name.toLowerCase() !== 'media') continue;
 
-    const params = parent.params.toLowerCase();
+    // Every comma-separated query must be print, and none may be negated.
+    const queries = parent.params.toLowerCase().split(',');
 
-    if (/\bprint\b/.test(params) && !/\bscreen\b/.test(params)) return true;
+    if (queries.every((query) => /^\s*(?:only\s+)?print\b/.test(query))) return true;
   }
 
   return false;

@@ -278,3 +278,27 @@ testRule({
     },
   ],
 });
+
+// Distinct longhands do not override one another, so more than one can
+// suppress the ring at once. Reverting only the last left the ring gone while
+// the next pass read the effective declaration as `revert` and reported clean.
+testRule({
+  ruleName,
+  config: [true],
+  fix: true,
+
+  reject: [
+    {
+      code: '.a:focus { outline-style: none; outline-width: 0; }',
+      fixed: '.a:focus { outline-style: revert; outline-width: revert; }',
+      message: messages.expected('.a:focus'),
+      description: 'every suppressing longhand is reverted, not just the last',
+    },
+    {
+      code: '.a:focus { outline-style: none; outline-width: 0; outline-color: transparent; }',
+      fixed: '.a:focus { outline-style: revert; outline-width: revert; outline-color: revert; }',
+      message: messages.expected('.a:focus'),
+      description: 'all three longhands are reverted together',
+    },
+  ],
+});

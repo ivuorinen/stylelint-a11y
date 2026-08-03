@@ -121,9 +121,16 @@ Adding a `fix` callback without adding the rule to `FIXABLE` makes stylelint
 throw, so the two cannot drift apart silently.
 
 Every fix must be **convergent** (its own output no longer reports),
-**idempotent**, **unit-preserving** where the author chose a unit, and
-**non-destructive** to declarations the rule does not own — including
-`!important` on unrelated properties.
+**idempotent**, and **non-destructive** to declarations the rule does not own —
+including `!important` on unrelated properties.
+
+Fixes **preserve the author's unit** wherever the corrected value can be
+expressed in it: `font-size: 8pt` becomes `11.25pt`, `max-width: 20ch` becomes
+`45ch`, `animation-duration: 8000ms` becomes `5000ms`. The one exception is
+`text-spacing-is-readable`, whose thresholds are ratios of the element's own
+font size: `0.12em` has no fixed `px` equivalent without knowing that size, so
+the fix writes `em` whatever unit the declaration used. A rule that converts
+away from the author's unit must document why, as that one does.
 `src/rules/autofix-safety.test.js` asserts all of these for every fixable rule
 from one place, plus the cross-rule case: a selector-widening fix
 (`selector-pseudo-class-focus`) running alongside a block-inserting fix

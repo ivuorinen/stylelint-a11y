@@ -138,3 +138,30 @@ testRule({
     },
   ],
 });
+
+// A tag-qualified entry must be qualified within the same compound selector.
+// Scanning the whole selector matched `body a[link]` against `body[link]`,
+// where `[link]` actually belongs to `a`.
+testRule({
+  ruleName,
+  config: [true],
+
+  accept: [
+    {
+      code: 'body a[link] { color: red; }',
+      description: 'the tag is on the other side of a combinator',
+    },
+    {
+      code: 'body > a[link] { color: red; }',
+      description: 'a child combinator separates them too',
+    },
+  ],
+
+  reject: [
+    {
+      code: 'body[link] { color: red; }',
+      message: messages.expected('body[link]'),
+      description: 'the tag and attribute in one compound selector still match',
+    },
+  ],
+});

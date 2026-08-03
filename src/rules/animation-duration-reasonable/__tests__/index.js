@@ -295,3 +295,27 @@ testRule({
     },
   ],
 });
+
+// Unit identifiers are case-insensitive in CSS. Detection lowercased the
+// value but the fix path read the declaration as written, so an uppercase
+// unit was reported and then left untouched.
+testRule({
+  ruleName,
+  config: [true],
+  fix: true,
+
+  reject: [
+    {
+      code: '.a { animation-duration: 10S; }',
+      fixed: '.a { animation-duration: 5s; }',
+      message: messages.expected('.a', '5s'),
+      description: 'an uppercase unit is fixed, not just reported',
+    },
+    {
+      code: '.a { animation: slide 10S ease 2s infinite; }',
+      fixed: '.a { animation: slide 5s ease 2s infinite; }',
+      message: messages.expected('.a', '5s'),
+      description: 'an uppercase unit inside a shorthand is fixed',
+    },
+  ],
+});

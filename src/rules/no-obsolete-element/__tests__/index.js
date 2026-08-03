@@ -123,17 +123,21 @@ testRule({
   ],
 });
 
-// `image` is not a real element; parsers map it to `img`.
-// See finding audit-87cfd063.
+// `image` is a conforming SVG element, and the HTML parser rewrites an
+// `<image>` start tag to `img` — so the tag can only legitimately appear as
+// SVG, and this rule could never catch the HTML mistake anyway.
 testRule({
   ruleName,
   config: [true],
 
-  reject: [
+  accept: [
+    {
+      code: 'svg image { color: pink; }',
+      description: 'image is a conforming SVG element',
+    },
     {
       code: 'image { color: pink; }',
-      message: messages.expected('image'),
-      description: 'image is non-conforming',
+      description: 'a bare image selector can only be the SVG element',
     },
   ],
 });

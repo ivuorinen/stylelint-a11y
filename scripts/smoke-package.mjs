@@ -43,10 +43,11 @@ try {
     !shipped.some((f) => /__tests__|\.test\./.test(f)),
     shipped.filter((f) => /__tests__|\.test\./.test(f)).join(', ')
   );
-  check(
-    'type declarations are published',
-    shipped.some((f) => f.replace(/\\/g, '/') === 'types/index.d.ts')
-  );
+  const shippedPaths = shipped.map((f) => f.replace(/\\/g, '/'));
+
+  for (const declaration of ['types/index.d.ts', 'types/recommended.d.ts']) {
+    check(`${declaration} is published`, shippedPaths.includes(declaration));
+  }
 
   writeFileSync(
     join(dir, '.stylelintrc.json'),

@@ -15,19 +15,28 @@ const DEFAULT_MAX_DURATION = `${DEFAULT_MAX_DURATION_S}s`;
 
 const ignoredValues = ['none', 'inherit', 'initial', 'unset'];
 
-/** Parses a CSS duration string (e.g. '500ms', '2s') to seconds. */
+/**
+ * Parses a CSS duration string (e.g. '500ms', '2s') to seconds.
+ *
+ * Unit identifiers are case-insensitive in CSS, and the fix path reads the
+ * declaration as written — so this lowercases rather than assuming a
+ * lowercased value. Without it `animation-duration: 10S` was reported by
+ * detection (which lowercases) and then left untouched by `--fix`.
+ */
 function parseDurationToSeconds(value) {
-  if (value.endsWith('ms')) {
-    return parseFloat(value) / 1000;
+  const lower = value.toLowerCase();
+
+  if (lower.endsWith('ms')) {
+    return parseFloat(lower) / 1000;
   }
-  if (value.endsWith('s')) {
-    return parseFloat(value);
+  if (lower.endsWith('s')) {
+    return parseFloat(lower);
   }
   return NaN;
 }
 
 /** Matches a bare time token: the duration inside a shorthand. */
-const TIME_TOKEN = /^[\d.]+m?s$/;
+const TIME_TOKEN = /^[\d.]+m?s$/i;
 
 /** Extracts the first time value from a shorthand animation/transition value. */
 function extractDurationFromShorthand(value) {

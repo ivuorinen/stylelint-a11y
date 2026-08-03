@@ -149,12 +149,15 @@ describe('autofix safety', () => {
     it('produces parseable CSS', async () => {
       for (const code of cases) {
         const fixed = (await lint(code, rule, true)).code;
-        const { results } = await stylelint.lint({
-          code: fixed,
-          config: { rules: {} },
-        });
+        const { results } = await stylelint.lint({ code: fixed, config: { rules: {} } });
+        // `parseErrors` stays empty for a syntax error — stylelint surfaces it
+        // as a `CssSyntaxError` warning, so asserting on `parseErrors` alone
+        // passed even for unparseable output.
+        const syntaxErrors = results[0].warnings
+          .filter((warning) => warning.rule === 'CssSyntaxError')
+          .map((warning) => warning.text);
 
-        expect({ code, errors: results[0].parseErrors }).toEqual({ code, errors: [] });
+        expect({ code, syntaxErrors }).toEqual({ code, syntaxErrors: [] });
       }
     });
 

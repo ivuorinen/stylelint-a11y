@@ -55,6 +55,11 @@ obsolete element are not matched.
 `menu` and `hgroup` are **not** treated as obsolete: both are conforming
 elements in the current HTML Living Standard.
 
+`image` is not treated as obsolete either. It is a conforming element in SVG,
+and an HTML `<image>` start tag is rewritten to `img` by the parser — so the
+tag can only legitimately appear as SVG, and a selector-based rule could never
+catch the HTML mistake.
+
 ## Not automatically fixable
 
 Replacing an obsolete element means changing the markup, not the stylesheet.
