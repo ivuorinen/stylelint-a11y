@@ -69,7 +69,7 @@
     "@babel/parser": "^8.0.4",
     "@babel/preset-env": "^7",
     "@eslint/js": "^10",
-    "@microsoft/eslint-formatter-sarif": "2.1.7",
+    "@microsoft/eslint-formatter-sarif": "3.1.0",
     "babel-jest": "^30",
     "babel-preset-jest": "^30",
     "cross-env": "^10",
