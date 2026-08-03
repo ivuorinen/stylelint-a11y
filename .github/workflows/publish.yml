@@ -1,0 +1,99 @@
+---
+name: Publish
+
+on:
+  push:
+    branches:
+      - master
+
+# Never cancel an in-progress release: a half-published release is worse than a
+# queued one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read # read repository contents
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read # read repository contents
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `npm test` runs eslint through `pretest`, then the suite. The coverage
+      # gate is separate because it is the slower of the two and only the
+      # thresholds differ.
+      - name: Run unit tests
+        run: npm test
+
+      - name: Enforce the coverage gate
+        run: npm run coverage
+
+      # Packing and installing the tarball is the only check that sees what
+      # consumers actually get. A release must not skip it.
+      - name: Verify the published package
+        run: npm run smoke
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - test
+    # Dedicated environment so the release step can carry protection rules.
+    # npm auth uses Trusted Publishing (OIDC) via id-token below, so no
+    # NPM_TOKEN is needed.
+    environment: release
+    permissions:
+      contents: write # create the release commit, tag and GitHub release
+      issues: write # comment on released issues
+      pull-requests: write # comment on released pull requests
+      id-token: write # OIDC for npm Trusted Publishing and provenance
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # semantic-release reads the full tag history to find the last
+          # release and the commits since it.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@ivuorinen'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # semantic-release 25 is required, not 24: only its `@semantic-release/npm`
+      # 13.x exchanges the GitHub Actions OIDC token for a short-lived npm
+      # token. Version 24 pins the 12.x plugin, whose `verifyConditions` hard
+      # -fails with ENONPMTOKEN and has no OIDC path at all — the release would
+      # abort before publishing.
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
+        with:
+          semantic_version: 25
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

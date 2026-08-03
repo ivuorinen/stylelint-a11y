@@ -43,8 +43,7 @@
     "pretest": "npm run lint",
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" npx jest --runInBand",
     "coverage": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" npx jest --coverage",
-    "smoke": "npm run build && node scripts/smoke-package.mjs",
-    "release": "release-it"
+    "smoke": "npm run build && node scripts/smoke-package.mjs"
   },
   "prettier": {
     "printWidth": 100,
@@ -82,25 +81,12 @@
     "jest-preset-stylelint": "^9",
     "postcss": "^8.4.32",
     "prettier": "^3",
-    "release-it": "^21.0.0",
     "rimraf": "^6",
     "stylelint": "^17"
   },
   "publishConfig": {
-    "access": "public"
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "Release v${version}",
-      "requireBranch": "master"
-    },
-    "github": {
-      "release": true,
-      "web": true
-    },
-    "npm": {
-      "publish": true
-    }
+    "access": "public",
+    "provenance": true
   },
   "files": [
     "README.md",
