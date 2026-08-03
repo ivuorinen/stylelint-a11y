@@ -11,17 +11,24 @@ import { someSelectorNode } from './selectors.js';
 function compoundSiblings(node) {
   const siblings = node.parent.nodes;
   const index = siblings.indexOf(node);
-  const compound = [];
 
-  for (let i = index - 1; i >= 0 && siblings[i].type !== 'combinator'; i -= 1) {
-    compound.push(siblings[i]);
-  }
+  /** Takes nodes until a combinator ends the compound selector. */
+  const untilCombinator = (nodes) => {
+    const taken = [];
 
-  for (let i = index + 1; i < siblings.length && siblings[i].type !== 'combinator'; i += 1) {
-    compound.push(siblings[i]);
-  }
+    for (const sibling of nodes) {
+      if (sibling.type === 'combinator') break;
 
-  return compound;
+      taken.push(sibling);
+    }
+
+    return taken;
+  };
+
+  return [
+    ...untilCombinator(siblings.slice(0, index).reverse()),
+    ...untilCombinator(siblings.slice(index + 1)),
+  ];
 }
 
 /**

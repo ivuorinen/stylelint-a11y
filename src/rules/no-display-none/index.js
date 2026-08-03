@@ -29,9 +29,17 @@ function isPrintOnly(node) {
     if (parent.type !== 'atrule' || parent.name.toLowerCase() !== 'media') continue;
 
     // Every comma-separated query must be print, and none may be negated.
+    // Tokenised rather than matched with `/^\s*(?:only\s+)?print\b/`, whose
+    // adjacent `\s*` and nested `\s+` make it ambiguous enough for ReDoS
+    // detectors to flag.
     const queries = parent.params.toLowerCase().split(',');
+    const isPrintQuery = (query) => {
+      const words = query.trim().split(/\s+/);
 
-    if (queries.every((query) => /^\s*(?:only\s+)?print\b/.test(query))) return true;
+      return words[0] === 'print' || (words[0] === 'only' && words[1] === 'print');
+    };
+
+    if (queries.every(isPrintQuery)) return true;
   }
 
   return false;
