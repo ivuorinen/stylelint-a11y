@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // empty' | { read -r f || exit 0; case \"$f\" in *.js|*.mjs) cd \"${CLAUDE_PROJECT_DIR:-.}\" && out=$(npm run lint --silent 2>&1) || { echo \"$out\"; exit 2; };; esac; }",
+            "statusMessage": "Linting",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -32,15 +32,14 @@ const unitOf = (size) => {
  * Matches the font-size component of the `font` shorthand — the length that
  * precedes the optional `/line-height` and the mandatory font family.
  *
- * The number is spelled `\d+(?:\.\d+)?|\.\d+`. Neither `(?:\d*\.)?\d+` nor
- * `\d+\.?\d*` works: both leave the dot optional, so the two digit
- * quantifiers sit adjacent and can trade characters. The engine then has many
- * ways to split one digit run and backtracks polynomially on a long
- * non-matching value. Requiring a digit after the dot makes each split
- * unique, and rejects `12.px` besides — a trailing dot is not a valid CSS
- * number.
+ * The number is spelled as three flat alternatives, for the reason given on
+ * `isEmThreshold` in `text-spacing-is-readable`: an optional dot between two
+ * digit quantifiers lets them trade characters (polynomial backtracking),
+ * while `\d+(?:\.\d+)?` avoids that only by nesting a quantifier inside a
+ * quantified group, which `safe-regex` rejects. Flat alternatives satisfy
+ * both, and reject `12.px` — a trailing dot is not a valid CSS number.
  */
-const FONT_SHORTHAND_SIZE = /(?:^|\s)((?:\d+(?:\.\d+)?|\.\d+)(?:px|pt|rem))(?=[\s/]|$)/i;
+const FONT_SHORTHAND_SIZE = /(?:^|\s)((?:\d+\.\d+|\d+|\.\d+)(?:px|pt|rem))(?=[\s/]|$)/i;
 
 /**
  * The font size a declaration sets, or `null` when it sets none. The caller

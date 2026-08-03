@@ -26,14 +26,20 @@ const ignoredValues = ['normal', 'inherit', 'initial', 'unset'];
  * threshold was then compared as if it were `1em` and echoed verbatim in the
  * message.
  *
- * The number is spelled `\d+(?:\.\d+)?|\.\d+`, never `\d*\.?\d+`. In the
- * latter the dot is optional, so the two digit quantifiers sit adjacent and
- * can trade characters — the engine then has many ways to split one digit run
- * and backtracks polynomially on a long non-matching value. Requiring a digit
- * after the dot makes each split unique, and rejects `12.` besides, which is
- * not a valid CSS number anyway.
+ * The number is spelled as three flat alternatives. Two other spellings are
+ * both rejected by a static analyser, in opposite directions:
+ *
+ * - `\d*\.?\d+` leaves the dot optional, so the digit quantifiers sit
+ *   adjacent and can trade characters. The engine then has many ways to split
+ *   one digit run and backtracks polynomially on a long non-matching value.
+ * - `\d+(?:\.\d+)?` fixes that, but nests a quantifier inside a quantified
+ *   group — star height 2, which `safe-regex` rejects on sight.
+ *
+ * `\d+\.\d+|\d+|\.\d+` satisfies both: every quantifier is top level, and
+ * the dot separating the two `\d+` is mandatory, so neither can take the
+ * other's characters. It also rejects `12.`, which is not a valid CSS number.
  */
-const isEmThreshold = (v) => typeof v === 'string' && /^(?:\d+(?:\.\d+)?|\.\d+)em$/i.test(v.trim());
+const isEmThreshold = (v) => typeof v === 'string' && /^(?:\d+\.\d+|\d+|\.\d+)em$/i.test(v.trim());
 
 /**
  * A spacing value expressed in `em`, or `null` when it cannot be resolved

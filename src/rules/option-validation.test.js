@@ -1,4 +1,6 @@
+import { readdirSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { parse } from '@babel/parser';
 import stylelint from 'stylelint';
 import plugins from '../index.js';
 
@@ -51,31 +53,62 @@ describe('secondary option validation', () => {
 /**
  * Two digit quantifiers separated only by an optional atom (`\d*\.?\d+`) can
  * trade characters, so the engine has many ways to split one digit run and
- * backtracks polynomially on a long non-matching value. Requiring a digit
- * after the dot (`\d+(?:\.\d+)?|\.\d+`) makes each split unique.
+ * backtracks polynomially on a long non-matching value. Spelling the number as
+ * flat alternatives (`\d+\.\d+|\d+|\.\d+`) makes each split unique.
  *
- * This asserts the property directly on the source, so a future rule cannot
- * reintroduce the shape without failing here.
+ * Asserted against the real regex literals in every rule and utility, so a new
+ * one cannot reintroduce the shape.
  */
 describe('numeric patterns are unambiguous', () => {
-  const AMBIGUOUS = /\\d[*+][^/]{0,4}\?\s*\\d[*+]/;
+  const AMBIGUOUS = /\\d[*+][^|)]{0,4}\?\s*\\d[*+]/;
 
-  /** Source with comments stripped — they quote the bad shape to explain it. */
-  const code = (source) =>
-    source
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .split('\n')
-      .filter((line) => !line.trim().startsWith('//'));
+  /**
+   * Every regex literal in a module, read from the parsed AST.
+   *
+   * Parsed rather than pattern-matched over the text: comments are not AST
+   * nodes, so an explanatory comment quoting the bad shape — as the two rules
+   * below do deliberately — cannot register as a violation. Stripping comments
+   * textually missed trailing `// ...` ones.
+   */
+  const regexLiterals = (source) => {
+    const found = [];
+    const visit = (node) => {
+      if (Array.isArray(node)) return node.forEach(visit);
+      if (!node || typeof node !== 'object' || typeof node.type !== 'string') return;
+      if (node.type === 'RegExpLiteral') found.push(node.pattern);
 
-  it.each(['font-size-is-readable', 'text-spacing-is-readable'])(
-    '%s declares no exchangeable digit quantifiers',
-    async (rule) => {
-      const source = await readFile(new URL(`./${rule}/index.js`, import.meta.url), 'utf8');
-      const offenders = code(source)
-        .filter((line) => AMBIGUOUS.test(line))
-        .map((line) => line.trim());
+      for (const [key, value] of Object.entries(node)) {
+        if (key !== 'loc' && !key.endsWith('Comments')) visit(value);
+      }
+    };
 
-      expect(offenders).toEqual([]);
-    }
-  );
+    visit(parse(source, { sourceType: 'module' }).program);
+
+    return found;
+  };
+
+  const src = new URL('..', import.meta.url);
+  const jsFiles = (dir) =>
+    readdirSync(new URL(dir, src)).filter(
+      (name) => name.endsWith('.js') && !name.endsWith('.test.js')
+    );
+  const sources = [
+    ...jsFiles('utils/').map((name) => `utils/${name}`),
+    ...readdirSync(new URL('rules/', src), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .flatMap((entry) =>
+        jsFiles(`rules/${entry.name}/`).map((name) => `rules/${entry.name}/${name}`)
+      ),
+  ];
+
+  it('finds the rule and utility sources to scan', () => {
+    expect(sources.length).toBeGreaterThan(15);
+  });
+
+  it.each(sources)('%s declares no exchangeable digit quantifiers', async (relative) => {
+    const source = await readFile(new URL(`../${relative}`, import.meta.url), 'utf8');
+    const offenders = regexLiterals(source).filter((pattern) => AMBIGUOUS.test(`/${pattern}/`));
+
+    expect(offenders).toEqual([]);
+  });
 });
