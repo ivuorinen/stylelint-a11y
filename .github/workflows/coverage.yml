@@ -13,6 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # No authenticated git after checkout, so the token has no reason to
+          # stay in .git/config where dependency lifecycle scripts could read
+          # it. The report action authenticates through the API with
+          # `github.token`, not through the git remote.
+          persist-credentials: false
       - uses: ArtiomTr/jest-coverage-report-action@262a7bb0b20c4d1d6b6b026af0f008f78da72788 # v2.3.1
         with:
           install-command: npm ci
