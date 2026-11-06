@@ -78,7 +78,7 @@
     "eslint-plugin-prettier": "^5",
     "eslint-plugin-security": "^4.0.1",
     "jest": "^30",
-    "jest-preset-stylelint": "^9",
+    "jest-preset-stylelint": "^10.0.0",
     "postcss": "^8.4.32",
     "prettier": "^3",
     "rimraf": "^6",
