@@ -82,7 +82,7 @@
     "postcss": "^8.4.32",
     "prettier": "^3",
     "rimraf": "^6",
-    "stylelint": "^17"
+    "stylelint": "^18.0.0"
   },
   "publishConfig": {
     "access": "public",
